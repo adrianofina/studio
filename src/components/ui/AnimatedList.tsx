@@ -1,9 +1,18 @@
-﻿import { useRef, useState, useEffect, useCallback } from 'react';
-import { motion, useInView } from 'framer-motion';
+﻿import { useRef, useState, useEffect, useCallback, ReactNode } from 'react';
+import { motion, useInView } from 'motion/react';
+import './AnimatedList.css';
 
-const AnimatedItem = ({ children, delay = 0, index, onMouseEnter, onClick }) => {
-  const ref = useRef(null);
-  const inView = useInView(ref, { amount: 0.5, triggerOnce: false });
+interface AnimatedItemProps {
+  children: ReactNode;
+  delay?: number;
+  index: number;
+  onMouseEnter: () => void;
+  onClick: () => void;
+}
+
+const AnimatedItem = ({ children, delay = 0, index, onMouseEnter, onClick }: AnimatedItemProps) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { amount: 0.2, triggerOnce: false });
   return (
     <motion.div
       ref={ref}
@@ -20,28 +29,41 @@ const AnimatedItem = ({ children, delay = 0, index, onMouseEnter, onClick }) => 
   );
 };
 
-export default function AnimatedList({
+interface AnimatedListProps {
+  items: any[];
+  onItemSelect?: (item: any, index: number) => void;
+  renderItem?: (item: any, index: number, isSelected: boolean) => ReactNode;
+  showGradients?: boolean;
+  enableArrowNavigation?: boolean;
+  className?: string;
+  itemClassName?: string;
+  displayScrollbar?: boolean;
+  initialSelectedIndex?: number;
+}
+
+export const AnimatedList = ({
   items = [],
   onItemSelect,
+  renderItem,
   showGradients = true,
   enableArrowNavigation = true,
   className = '',
   itemClassName = '',
   displayScrollbar = true,
   initialSelectedIndex = -1
-}) {
-  const listRef = useRef(null);
+}: AnimatedListProps) => {
+  const listRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState(initialSelectedIndex);
   const [keyboardNav, setKeyboardNav] = useState(false);
   const [topGradientOpacity, setTopGradientOpacity] = useState(0);
   const [bottomGradientOpacity, setBottomGradientOpacity] = useState(1);
 
-  const handleItemMouseEnter = useCallback(index => {
+  const handleItemMouseEnter = useCallback((index: number) => {
     setSelectedIndex(index);
   }, []);
 
   const handleItemClick = useCallback(
-    (item, index) => {
+    (item: any, index: number) => {
       setSelectedIndex(index);
       if (onItemSelect) {
         onItemSelect(item, index);
@@ -50,7 +72,7 @@ export default function AnimatedList({
     [onItemSelect]
   );
 
-  const handleScroll = useCallback(e => {
+  const handleScroll = useCallback((e: any) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
     setTopGradientOpacity(Math.min(scrollTop / 50, 1));
     const bottomDistance = scrollHeight - (scrollTop + clientHeight);
@@ -58,8 +80,8 @@ export default function AnimatedList({
   }, []);
 
   useEffect(() => {
-    if (!enableArrowNavigation) return;
-    const handleKeyDown = e => {
+    if (!enableArrowNavigation || items.length === 0) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey)) {
         e.preventDefault();
         setKeyboardNav(true);
@@ -82,34 +104,55 @@ export default function AnimatedList({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [items, selectedIndex, onItemSelect, enableArrowNavigation]);
 
+  useEffect(() => {
+    if (!keyboardNav || selectedIndex < 0 || !listRef.current) return;
+    const container = listRef.current;
+    const selectedItem = container.querySelector(`[data-index="${selectedIndex}"]`) as HTMLDivElement;
+    if (selectedItem) {
+      const extraMargin = 50;
+      const containerScrollTop = container.scrollTop;
+      const containerHeight = container.clientHeight;
+      const itemTop = selectedItem.offsetTop;
+      const itemBottom = itemTop + selectedItem.offsetHeight;
+      if (itemTop < containerScrollTop + extraMargin) {
+        container.scrollTo({ top: itemTop - extraMargin, behavior: 'smooth' });
+      } else if (itemBottom > containerScrollTop + containerHeight - extraMargin) {
+        container.scrollTo({
+          top: itemBottom - containerHeight + extraMargin,
+          behavior: 'smooth'
+        });
+      }
+    }
+    setKeyboardNav(false);
+  }, [selectedIndex, keyboardNav]);
+
   return (
-    <div className={`relative w-full ${className}`}>
-      <div 
-        ref={listRef} 
-        className={`max-h-[400px] overflow-y-auto p-4 ${!displayScrollbar ? 'scrollbar-none' : ''}`} 
-        onScroll={handleScroll}
-        style={{ scrollbarWidth: displayScrollbar ? 'auto' : 'none' }}
-      >
+    <div className={`scroll-list-container ${className}`}>
+      <div ref={listRef} className={`scroll-list ${!displayScrollbar ? 'no-scrollbar' : ''}`} onScroll={handleScroll}>
         {items.map((item, index) => (
           <AnimatedItem
             key={index}
-            delay={0.1}
+            delay={0.05}
             index={index}
             onMouseEnter={() => handleItemMouseEnter(index)}
             onClick={() => handleItemClick(item, index)}
           >
-            <div className={`p-4 rounded-xl border transition-all duration-200 ${selectedIndex === index ? 'border-[var(--finna-primary)] bg-black/40' : 'border-zinc-800 bg-[#120F17]/20'} ${itemClassName}`}>
-              <p className="text-sm font-medium text-white m-0">{item}</p>
-            </div>
+            {renderItem ? (
+              renderItem(item, index, selectedIndex === index)
+            ) : (
+              <div className={`item ${selectedIndex === index ? 'selected' : ''} ${itemClassName}`}>
+                <p className="item-text">{typeof item === 'string' ? item : JSON.stringify(item)}</p>
+              </div>
+            )}
           </AnimatedItem>
         ))}
       </div>
       {showGradients && (
         <>
-          <div className="absolute top-0 left-0 right-0 h-12 pointer-events-none transition-opacity duration-300 bg-gradient-to-b from-[#0c080e] to-transparent" style={{ opacity: topGradientOpacity }} />
-          <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none transition-opacity duration-300 bg-gradient-to-t from-[#0c080e] to-transparent" style={{ opacity: bottomGradientOpacity }} />
+          <div className="top-gradient" style={{ opacity: topGradientOpacity }}></div>
+          <div className="bottom-gradient" style={{ opacity: bottomGradientOpacity }}></div>
         </>
       )}
     </div>
   );
-}
+};
