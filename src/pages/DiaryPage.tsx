@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from "react"
+﻿import { useState } from "react"
 import { PROJECTS } from "../data/projects"
 import type { ProjectEntry } from "../types"
 import { ArrowLeft, LayoutGrid, List as ListIcon } from "lucide-react"
@@ -6,7 +6,7 @@ import { SungJinwooShadow } from "../components/ui/SungJinwooShadow"
 import { StatusSpine } from "../components/ui/StatusSpine"
 import { MagicBento } from "../components/ui/MagicBento"
 import { TextGlow } from "../components/ui/TextGlow"
-import { gsap } from "gsap"
+import { AnimatedList } from "../components/ui/AnimatedList"
 
 const STATUS_MAP: Record<ProjectEntry["status"], "completed" | "active" | "inactive"> = {
   completed: "completed",
@@ -17,34 +17,6 @@ const STATUS_MAP: Record<ProjectEntry["status"], "completed" | "active" | "inact
 export function DiaryPage() {
   const [selected, setSelected] = useState<ProjectEntry | null>(null)
   const [viewLayout, setViewLayout] = useState<"list" | "tab">("list")
-  
-  // Ref array collector for card items
-  const cardRefs = useRef<HTMLDivElement[]>([])
-  cardRefs.current = []
-
-  const addToRefs = (el: HTMLDivElement | null) => {
-    if (el && !cardRefs.current.includes(el)) {
-      cardRefs.current.push(el)
-    }
-  }
-
-  // Trigger high-fidelity entry staggers whenever the list layout mounts
-  useEffect(() => {
-    if (viewLayout === "list" && cardRefs.current.length > 0 && !selected) {
-      // Force initial state to prevent flash of un-animated content
-      gsap.set(cardRefs.current, { opacity: 0, y: 20, scale: 0.98 })
-      
-      gsap.to(cardRefs.current, {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: 0.5,
-        stagger: 0.06,
-        ease: "power3.out",
-        overwrite: "auto"
-      })
-    }
-  }, [viewLayout, selected])
 
   if (selected) {
     return (
@@ -73,13 +45,6 @@ export function DiaryPage() {
               </div>
             </div>
           )}
-
-          {selected.lessons && (
-            <div className="rounded-r-lg p-4" style={{ background: "var(--finna-canvas-alt)", borderLeft: "3px solid var(--finna-primary)" }}>
-              <div className="text-[9px] uppercase tracking-wider font-mono mb-1.5" style={{ color: "var(--finna-text-dim)" }}>Notes</div>
-              <p className="text-[12px]" style={{ color: "var(--finna-text-secondary)" }}>{selected.lessons}</p>
-            </div>
-          )}
         </div>
       </div>
     )
@@ -97,7 +62,6 @@ export function DiaryPage() {
     <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 pb-28" style={{ background: "var(--finna-canvas)" }}>
       <div className="max-w-3xl mx-auto flex flex-col gap-6">
         
-        {/* View Layout Switcher */}
         <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: "var(--finna-border)" }}>
           <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500">Log Views</div>
           <div className="flex p-0.5 rounded-lg bg-black/30 border border-zinc-800/40">
@@ -127,30 +91,29 @@ export function DiaryPage() {
                     <div className="text-[10px] uppercase tracking-[0.15em] font-mono mb-3" style={{ color: "var(--finna-text-dim)" }}>
                       {bucket.label} — {items.length}
                     </div>
-                    <div className="flex flex-col gap-2">
-                      {items.map(p => (
+                    
+                    <AnimatedList 
+                      items={items}
+                      onItemSelect={(project) => setSelected(project)}
+                      showGradients={false}
+                      displayScrollbar={false}
+                      renderItem={(p: ProjectEntry, _, isSelected) => (
                         <div
-                          key={p.id}
-                          ref={addToRefs}
-                          onClick={() => setSelected(p)}
-                          className="flex items-stretch gap-4 p-4 rounded-2xl cursor-pointer transition-all hover:border-zinc-700 bg-zinc-900/20 backdrop-blur-md group"
-                          style={{ 
-                            background: "var(--finna-canvas-alt)", 
-                            border: "1px solid rgba(255,255,255,0.05)",
-                            willChange: "transform, opacity"
-                          }}
+                          className={`flex items-stretch gap-4 p-4 rounded-2xl transition-all border ${
+                            isSelected ? 'border-purple-500/30 bg-[#231c30]' : 'border-white/5 bg-zinc-900/20'
+                          }`}
                         >
                           <StatusSpine status={STATUS_MAP[p.status]} />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-[13px] font-semibold tracking-tight text-white group-hover:text-[var(--finna-primary)] transition-colors">{p.id}</span>
+                              <span className="text-[13px] font-semibold tracking-tight text-white">{p.id}</span>
                               <span className="text-[10px]" style={{ color: "var(--finna-text-dim)" }}>{p.date}</span>
                             </div>
                             <SungJinwooShadow progress={p.progress} status={STATUS_MAP[p.status]} height={4} />
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      )}
+                    />
                   </section>
                 )
               })}
@@ -166,9 +129,6 @@ export function DiaryPage() {
                 enableBorderGlow={true}
                 enableTilt={true}
                 enableMagnetism={true}
-                clickEffect={true}
-                spotlightRadius={300}
-                particleCount={10}
                 glowColor="132, 0, 255"
               />
             </div>
