@@ -1,4 +1,4 @@
-import type { ComponentSpec } from "../types"
+﻿import type { ComponentSpec } from "../types"
 
 // `controls` describes the tunable knobs shown in the Customize panel.
 // Each control maps to a real prop on the underlying component. The
@@ -166,4 +166,47 @@ export const COMPONENTS: ComponentSpec[] = [
     code: "<GlassCard>{children}</GlassCard>",
     preview: "glass",
   },
+
+  // =========================================================
+  // INTEGRATED COMMUNITY SKILL COMPONENTS APPEND MATRIX
+  // =========================================================
+  {
+    id: "animated-list",
+    name: "Animated List Container",
+    type: "List Layout",
+    tags: ["motion", "layout"],
+    starred: false,
+    desc: "A scrollable list layout featuring scale interpolation based on intersection view states, gradient masking at container boundaries, and full arrow navigation tracking.",
+    usedIn: "Diary Page (Animated Tab Flow)",
+    motion: {
+      ScaleReveal: "Scale transitions from 0.7 to 1 on viewport entrance thresholds.",
+      GradientShift: "Dynamic opacity fading based on top/bottom scroll offset distances."
+    },
+    controls: [
+      { key: "showGradients", type: "boolean", label: "Edge Gradients", default: true },
+      { key: "enableArrowNavigation", type: "boolean", label: "Arrow Key Tracker", default: true },
+      { key: "displayScrollbar", type: "boolean", label: "Show Scrollbar", default: true }
+    ],
+    code: `<AnimatedList\n  items={["Item 1", "Item 2", "Item 3"]}\n  showGradients={true}\n  enableArrowNavigation={true}\n  displayScrollbar={true}\n/>`,
+    preview: "animated-list"
+  },
+  {
+    id: "text-glow",
+    name: "Text Glow Engine",
+    type: "Typography Core",
+    tags: ["motion", "status"],
+    starred: false,
+    desc: "A text decoration wrapper that drops high-fidelity localized glow matrices onto alphanumeric targets without introducing layout shifts or baseline breaks.",
+    usedIn: "Bento System grids, overview tracking node indicators",
+    motion: {
+      Flicker: "Dynamic opacity scaling on custom accent parameters.",
+      ShadowBloom: "Transition intervals scaling across drop-shadow filters on configuration change."
+    },
+    controls: [
+      { key: "intensity", type: "select", label: "Glow Weight", default: "medium", options: ["low", "medium", "high"] },
+      { key: "variant", type: "select", label: "Core Blueprint", default: "default", options: ["default", "sungjinwoo"] }
+    ],
+    code: `<TextGlow intensity="medium" variant="sungjinwoo">\n  Shadow Monarch Level Max\n</TextGlow>`,
+    preview: "text-glow"
+  }
 ]
