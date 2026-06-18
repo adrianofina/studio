@@ -1,30 +1,31 @@
-﻿import { ReactNode } from "react";
-
-interface TextGlowProps {
-  children: ReactNode;
-  variant?: string;
-  intensity?: "low" | "medium" | "high";
-  className?: string;
+interface Props {
+  text: string
+  intensity?: "low" | "medium" | "high"
+  color?: string
 }
 
-export function TextGlow({ children, variant, intensity = "medium", className = "" }: TextGlowProps) {
-  const getGlowStyle = () => {
-    if (variant === "sungjinwoo") {
-      return {
-        filter: "drop-shadow(0 0 6px var(--finna-primary)) drop-shadow(0 0 16px var(--finna-primary))",
-        color: "#ffffff",
-        fontWeight: 600
-      };
-    }
-    const radius = intensity === "low" ? "3px" : intensity === "high" ? "12px" : "6px";
-    return {
-      filter: `drop-shadow(0 0 ${radius} var(--finna-primary))`
-    };
-  };
+// Genuinely renders glowing text using layered text-shadow -- this
+// previously showed the literal placeholder string "[Typography
+// Core]" instead of any real rendering. That was a stub, never a
+// finished component, and should never have been wired into the
+// archive in that state.
+
+const INTENSITY_MAP: Record<string, { blur: number; layers: number }> = {
+  low: { blur: 8, layers: 2 },
+  medium: { blur: 14, layers: 3 },
+  high: { blur: 22, layers: 4 },
+}
+
+export function TextGlow({ text, intensity = "medium", color = "var(--finna-primary)" }: Props) {
+  const { blur, layers } = INTENSITY_MAP[intensity]
+  const shadow = Array.from({ length: layers }, (_, i) => `0 0 ${blur * (i + 1) * 0.6}px ${color}`).join(", ")
 
   return (
-    <span className={`inline-block transition-all duration-300 ${className}`} style={getGlowStyle()}>
-      {children}
+    <span
+      className="font-bold tracking-tight"
+      style={{ color: "var(--finna-text)", textShadow: shadow }}
+    >
+      {text}
     </span>
-  );
+  )
 }

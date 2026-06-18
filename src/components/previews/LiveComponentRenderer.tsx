@@ -7,6 +7,7 @@ import { SparklineBars } from "../ui/SparklineBars"
 import { BreathingElement } from "../ui/BreathingElement"
 import { StatusSpine } from "../ui/StatusSpine"
 import { GlassCard } from "../ui/GlassCard"
+import { TextGlow } from "../ui/TextGlow"
 
 interface Props {
   comp: ComponentSpec
@@ -61,8 +62,12 @@ export function LiveComponentRenderer({ comp, values }: Props) {
         </div>
       )
     case "glass":
-      return <GlassCard><div className="text-[10px] font-mono" style={{ color: "var(--finna-text-dim)" }}>Glass</div></GlassCard>
+    return <GlassCard><div className="text-[10px] font-mono" style={{ color: "var(--finna-text-dim)" }}>Glass</div></GlassCard>
+    case "textglow":
+    return <TextGlow text={(values.text as string) ?? "Hello World"} intensity={(values.intensity as never) ?? "medium"} color={(values.color as string) ?? "var(--finna-primary)"} />
+
     default:
       return <span className="text-[10px] font-mono" style={{ color: "var(--finna-text-dim)" }}>[{comp.type}]</span>
   }
 }
+
