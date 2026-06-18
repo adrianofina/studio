@@ -1,3 +1,4 @@
+import type { ReactElement } from "react"
 import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight, LayoutGrid, Sparkles, Layers, BarChart3, Notebook, Palette } from "lucide-react"
 
@@ -10,7 +11,7 @@ interface Props {
   onOpenColorLab: () => void
 }
 
-const TAG_ICON: Record<string, JSX.Element> = {
+const TAG_ICON: Record<string, ReactElement> = {
   all: <LayoutGrid size={15} />,
   motion: <Sparkles size={15} />,
   data: <BarChart3 size={15} />,
@@ -82,7 +83,7 @@ export function PersistentSidebar({ tags, activeTag, onSelectTag, view, onSelect
 
 function NavRow({
   icon, label, active, collapsed, onClick,
-}: { icon: JSX.Element; label: string; active?: boolean; collapsed: boolean; onClick: () => void }) {
+}: { icon: ReactElement; label: string; active?: boolean; collapsed: boolean; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
