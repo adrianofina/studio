@@ -1,4 +1,4 @@
-﻿import type { ComponentSpec } from "../types"
+import type { ComponentSpec } from "../types"
 
 // `controls` describes the tunable knobs shown in the Customize panel.
 // Each control maps to a real prop on the underlying component. The
@@ -209,4 +209,29 @@ export const COMPONENTS: ComponentSpec[] = [
     code: `<TextGlow intensity="medium" variant="sungjinwoo">\n  Shadow Monarch Level Max\n</TextGlow>`,
     preview: "text-glow"
   }
+  /**
+   * {
+    id: "textglow",
+    name: "Text Glow",
+    type: "Glowing text treatment",
+    tags: ["aesthetic", "motion"],
+    starred: false,
+    desc: "Layered text-shadow glow around any string. Intensity controls how many light layers stack and how far the blur spreads.",
+    usedIn: "Finna (headlines, hero text)",
+    motion: {},
+    props: [
+      { key: "text", type: "string", desc: "the text to render" },
+      { key: "intensity", type: "string", desc: "low | medium | high" },
+      { key: "color", type: "string", desc: "glow color, theme var or hex" },
+    ],
+    controls: [
+      { key: "text", type: "select", label: "Text", default: "Hello World", options: ["Hello World", "FINNA", "Shadow Monarch"] },
+      { key: "intensity", type: "select", label: "Intensity", default: "medium", options: ["low", "medium", "high"] },
+      { key: "color", type: "color", label: "Glow color", default: "var(--finna-primary)" },
+    ],
+    code: '<TextGlow text="Hello World" intensity="medium" color="var(--finna-primary)" />',
+    preview: "textglow",
+  },
+   */
+  
 ]
