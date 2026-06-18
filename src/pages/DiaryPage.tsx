@@ -1,12 +1,10 @@
-﻿import { useState } from "react"
+import { useState } from "react"
 import { PROJECTS } from "../data/projects"
 import type { ProjectEntry } from "../types"
 import { ArrowLeft, LayoutGrid, List as ListIcon } from "lucide-react"
 import { SungJinwooShadow } from "../components/ui/SungJinwooShadow"
 import { StatusSpine } from "../components/ui/StatusSpine"
-import { MagicBento } from "../components/ui/MagicBento"
 import { TextGlow } from "../components/ui/TextGlow"
-import { AnimatedList } from "../components/ui/AnimatedList"
 
 const STATUS_MAP: Record<ProjectEntry["status"], "completed" | "active" | "inactive"> = {
   completed: "completed",
@@ -27,11 +25,13 @@ export function DiaryPage() {
           </button>
           
           <div className="text-xl font-bold tracking-tight mb-3 text-white">
-            <TextGlow variant="sungjinwoo">{selected.id}</TextGlow>
+            <TextGlow text={selected.id} intensity="high" />
           </div>
           
           <div className="mb-5">
-            <SungJinwooShadow progress={selected.progress} status={STATUS_MAP[selected.status]} height={6} />
+            <SungJinwooShadow status={STATUS_MAP[selected.status]}>
+              <div className="h-1.5 w-full rounded bg-zinc-800" />
+            </SungJinwooShadow>
           </div>
 
           {selected.desc && (
@@ -89,19 +89,15 @@ export function DiaryPage() {
                 return (
                   <section key={bucket.key}>
                     <div className="text-[10px] uppercase tracking-[0.15em] font-mono mb-3" style={{ color: "var(--finna-text-dim)" }}>
-                      {bucket.label} — {items.length}
+                      {bucket.label} � {items.length}
                     </div>
                     
-                    <AnimatedList 
-                      items={items}
-                      onItemSelect={(project) => setSelected(project)}
-                      showGradients={false}
-                      displayScrollbar={false}
-                      renderItem={(p: ProjectEntry, _, isSelected) => (
+                    <div className="flex flex-col gap-2">
+                      {items.map((p) => (
                         <div
-                          className={`flex items-stretch gap-4 p-4 rounded-2xl transition-all border ${
-                            isSelected ? 'border-purple-500/30 bg-[#231c30]' : 'border-white/5 bg-zinc-900/20'
-                          }`}
+                          key={p.id}
+                          onClick={() => setSelected(p)}
+                          className="flex items-stretch gap-4 p-4 rounded-2xl transition-all border border-white/5 bg-zinc-900/20 cursor-pointer hover:border-zinc-700/50"
                         >
                           <StatusSpine status={STATUS_MAP[p.status]} />
                           <div className="flex-1 min-w-0">
@@ -109,28 +105,34 @@ export function DiaryPage() {
                               <span className="text-[13px] font-semibold tracking-tight text-white">{p.id}</span>
                               <span className="text-[10px]" style={{ color: "var(--finna-text-dim)" }}>{p.date}</span>
                             </div>
-                            <SungJinwooShadow progress={p.progress} status={STATUS_MAP[p.status]} height={4} />
+                            <SungJinwooShadow status={STATUS_MAP[p.status]}>
+                              <div className="h-1 w-full bg-zinc-800/50 rounded" />
+                            </SungJinwooShadow>
                           </div>
                         </div>
-                      )}
-                    />
+                      ))}
+                    </div>
                   </section>
                 )
               })}
             </div>
           ) : (
             <div className="w-full mt-2">
-              <MagicBento 
-                projects={allFlattenedItems}
-                onProjectSelect={(project) => setSelected(project)}
-                textAutoHide={true}
-                enableStars={true}
-                enableSpotlight={true}
-                enableBorderGlow={true}
-                enableTilt={true}
-                enableMagnetism={true}
-                glowColor="132, 0, 255"
-              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {allFlattenedItems.map((p) => (
+                  <div 
+                    key={p.id} 
+                    onClick={() => setSelected(p)}
+                    className="p-4 rounded-2xl border border-white/5 bg-zinc-900/40 cursor-pointer hover:border-purple-500/30 transition-all"
+                  >
+                    <div className="text-[12px] font-semibold text-white mb-1">{p.id}</div>
+                    <div className="text-[10px] text-zinc-500 font-mono mb-2">{p.date}</div>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded font-mono bg-zinc-800/60 text-zinc-400 capitalize">
+                      {p.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
