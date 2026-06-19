@@ -1,10 +1,5 @@
 import type { ComponentSpec } from "../types"
 
-// `controls` describes the tunable knobs shown in the Customize panel.
-// Each control maps to a real prop on the underlying component. The
-// Customize panel reads this array to render sliders/selects/color
-// pickers without needing component-specific UI code per component.
-
 export const COMPONENTS: ComponentSpec[] = [
   {
     id: "shadow",
@@ -166,72 +161,60 @@ export const COMPONENTS: ComponentSpec[] = [
     code: "<GlassCard>{children}</GlassCard>",
     preview: "glass",
   },
-
-  // =========================================================
-  // INTEGRATED COMMUNITY SKILL COMPONENTS APPEND MATRIX
-  // =========================================================
   {
     id: "animated-list",
     name: "Animated List Container",
-    type: "List Layout",
+    type: "Interactive Layout",
     tags: ["motion", "layout"],
-    starred: false,
-    desc: "A scrollable list layout featuring scale interpolation based on intersection view states, gradient masking at container boundaries, and full arrow navigation tracking.",
-    usedIn: "Diary Page (Animated Tab Flow)",
-    motion: {
-      ScaleReveal: "Scale transitions from 0.7 to 1 on viewport entrance thresholds.",
-      GradientShift: "Dynamic opacity fading based on top/bottom scroll offset distances."
-    },
-    controls: [
-      { key: "showGradients", type: "boolean", label: "Edge Gradients", default: true },
-      { key: "enableArrowNavigation", type: "boolean", label: "Arrow Key Tracker", default: true },
-      { key: "displayScrollbar", type: "boolean", label: "Show Scrollbar", default: true }
+    starred: true,
+    desc: "An expanding item matrix component leveraging integrated micro-interactions synced with central layout state metrics.",
+    usedIn: "Diary Page View configurations",
+    motion: { Expand: "Smooth panel emergence on execution" },
+    props: [
+      { key: "items", type: "array", desc: "Component Spec objects" },
+      { key: "stars", type: "object", desc: "Set containing component IDs" }
     ],
-    code: `<AnimatedList\n  items={["Item 1", "Item 2", "Item 3"]}\n  showGradients={true}\n  enableArrowNavigation={true}\n  displayScrollbar={true}\n/>`,
-    preview: "animated-list"
+    controls: [],
+    code: "<AnimatedList items={COMPONENTS} stars={stars} onToggleStar={toggle} onOpen={open} />",
+    preview: "animated-list",
+    featured: true
   },
   {
-    id: "text-glow",
-    name: "Text Glow Engine",
-    type: "Typography Core",
-    tags: ["motion", "status"],
-    starred: false,
-    desc: "A text decoration wrapper that drops high-fidelity localized glow matrices onto alphanumeric targets without introducing layout shifts or baseline breaks.",
-    usedIn: "Bento System grids, overview tracking node indicators",
-    motion: {
-      Flicker: "Dynamic opacity scaling on custom accent parameters.",
-      ShadowBloom: "Transition intervals scaling across drop-shadow filters on configuration change."
-    },
-    controls: [
-      { key: "intensity", type: "select", label: "Glow Weight", default: "medium", options: ["low", "medium", "high"] },
-      { key: "variant", type: "select", label: "Core Blueprint", default: "default", options: ["default", "sungjinwoo"] }
-    ],
-    code: `<TextGlow intensity="medium" variant="sungjinwoo">\n  Shadow Monarch Level Max\n</TextGlow>`,
-    preview: "text-glow"
-  }
-  /**
-   * {
     id: "textglow",
-    name: "Text Glow",
-    type: "Glowing text treatment",
+    name: "Text Glow Engine",
+    type: "High-Fidelity Typography",
     tags: ["aesthetic", "motion"],
-    starred: false,
-    desc: "Layered text-shadow glow around any string. Intensity controls how many light layers stack and how far the blur spreads.",
-    usedIn: "Finna (headlines, hero text)",
-    motion: {},
+    starred: true,
+    desc: "Layered text-shadow glow engine casting balanced drop-shadow matrices dynamically across alphanumeric strings.",
+    usedIn: "Finna (headlines, overview tracking indicators)",
+    motion: { Bloom: "Shadow layer interpolation cycles" },
     props: [
-      { key: "text", type: "string", desc: "the text to render" },
-      { key: "intensity", type: "string", desc: "low | medium | high" },
-      { key: "color", type: "string", desc: "glow color, theme var or hex" },
+      { key: "text", type: "string", desc: "string message" },
+      { key: "intensity", type: "string", desc: "low | medium | high" }
     ],
     controls: [
-      { key: "text", type: "select", label: "Text", default: "Hello World", options: ["Hello World", "FINNA", "Shadow Monarch"] },
-      { key: "intensity", type: "select", label: "Intensity", default: "medium", options: ["low", "medium", "high"] },
-      { key: "color", type: "color", label: "Glow color", default: "var(--finna-primary)" },
+      { key: "text", type: "select", label: "Display Text", default: "Hello World", options: ["Hello World", "FINNA", "Shadow Monarch"] },
+      { key: "intensity", type: "select", label: "Intensity Weight", default: "medium", options: ["low", "medium", "high"] }
     ],
-    code: '<TextGlow text="Hello World" intensity="medium" color="var(--finna-primary)" />',
+    code: '<TextGlow text="Hello World" intensity="medium" />',
     preview: "textglow",
+    featured: true
   },
-   */
-  
+  {
+    id: "magic-bento",
+    name: "Magic Bento Grid",
+    type: "Luxury Tier Layout",
+    tags: ["card", "aesthetic", "layout"],
+    starred: true,
+    desc: "Deep-surface container layout dropping neon spotlight borders and cursor tracking interaction aesthetics.",
+    usedIn: "Finna Premium Dashboard panels",
+    motion: { Proximity: "Neon border acceleration tracking hover bounds" },
+    props: [
+      { key: "comp", type: "object", desc: "Component Spec item mapping" }
+    ],
+    controls: [],
+    code: "<MagicBentoCard comp={selectedComponent} starred={false} onToggleStar={() => {}} onOpen={() => {}} />",
+    preview: "magic-bento",
+    featured: true
+  }
 ]

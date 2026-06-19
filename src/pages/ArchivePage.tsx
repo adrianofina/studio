@@ -3,7 +3,7 @@ import { Search } from "lucide-react"
 import { COMPONENTS } from "../data/library"
 import type { ComponentSpec } from "../types"
 import { Masonry } from "../components/archive/Masonry"
-import { MagicBentoCard } from "../components/ui/MagicBento"
+import { MagicBento } from "../components/ui/MagicBento"
 import { AnimatedList } from "../components/ui/AnimatedList"
 
 interface Props {
@@ -77,7 +77,7 @@ export function ArchivePage({ activeTag, stars, onToggleStar, onOpen }: Props) {
         {viewMode === "bento" && (
           <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
             {filtered.map((comp, idx) => (
-              <MagicBentoCard
+              <MagicBento
                 key={comp.id}
                 comp={comp}
                 starred={stars.has(comp.id)}

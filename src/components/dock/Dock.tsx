@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef } from "react"
 import type { ReactElement } from "react"
-import { LayoutGrid, Notebook, Palette, Layers } from "lucide-react"
+import { LayoutGrid, Notebook, Palette, Layers, PaletteIcon } from "lucide-react"
 
 interface DockItem {
   key: string
@@ -13,6 +13,7 @@ const ITEMS: DockItem[] = [
   { key: "diary", label: "Diary", icon: <Notebook size={18} /> },
   { key: "collections", label: "Collections", icon: <Layers size={18} /> },
   { key: "colorlab", label: "Color Lab", icon: <Palette size={18} /> },
+  { key: "gradients", label: "Gradients", icon: <PaletteIcon size={18} /> },
 ]
 
 interface Props {
@@ -22,15 +23,17 @@ interface Props {
 
 export function Dock({ active, onSelect }: Props) {
   const [hovered, setHovered] = useState<string | null>(null)
-  const [isMobile, setIsMobile] = useState(false)
+  //const [isMobile, setIsMobile] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
+  /**
+   * useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 640)
     checkMobile()
     window.addEventListener("resize", checkMobile)
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
+   */
 
   return (
     <div 
