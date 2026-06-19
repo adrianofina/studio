@@ -1,16 +1,19 @@
-﻿.scroll-list-container {
+.scroll-list-container {
   position: relative;
   width: 100%;
+  height: 100%;
 }
 
 .scroll-list {
-  max-height: 310px;
+  width: 100%;
+  height: 100%;
+  max-height: inherit;
   overflow-y: auto;
-  padding: 6px;
+  padding: 12px;
 }
 
 .scroll-list::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .scroll-list::-webkit-scrollbar-track {
@@ -18,8 +21,8 @@
 }
 
 .scroll-list::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -31,13 +34,22 @@
   scrollbar-width: none;
 }
 
-/* Base item structure if custom renderItem is bypassed */
 .item {
   padding: 12px;
-  background-color: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  background-color: var(--finna-surface-alt, #16141c);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.item.selected {
+  background-color: rgba(131, 42, 93, 0.12);
+  border-color: rgba(131, 42, 93, 0.3);
+}
+
+.item-text {
+  color: #fff;
+  margin: 0;
 }
 
 .top-gradient {
@@ -45,10 +57,11 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 35px;
-  background: linear-gradient(to bottom, #120F17, transparent);
+  height: 30px;
+  background: linear-gradient(to bottom, var(--finna-canvas, #0c0a0f), transparent);
   pointer-events: none;
-  z-index: 10;
+  transition: opacity 0.2s ease;
+  z-index: 5;
 }
 
 .bottom-gradient {
@@ -56,8 +69,9 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 35px;
-  background: linear-gradient(to top, #120F17, transparent);
+  height: 40px;
+  background: linear-gradient(to top, var(--finna-canvas, #0c0a0f), transparent);
   pointer-events: none;
-  z-index: 10;
+  transition: opacity 0.2s ease;
+  z-index: 5;
 }

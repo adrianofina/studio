@@ -17,7 +17,7 @@ interface Props {
 // contract as ChromaCard so it is a drop-in alternative visual style
 // for the exact same data, not a competing grid system.
 
-export function MagicBentoCard({ comp, starred, onToggleStar, onOpen, size = "normal" }: Props) {
+export function MagicBento({ comp, starred, onToggleStar, onOpen, size = "normal" }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const [pos, setPos] = useState({ x: 50, y: 50 })
   const [hovered, setHovered] = useState(false)

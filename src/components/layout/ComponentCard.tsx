@@ -20,7 +20,7 @@ export function ComponentCard({ comp, size, starred, onToggleStar, onOpen }: Pro
   return (
     <div
       onClick={onOpen}
-      className={`relative cursor-pointer transition-all duration-200 hover:-translate-y-1 ${cls.radius}`}
+      className={`relative cursor-pointer transition-all duration-200 hover:-translate-y-1 ${cls.radius} overflow-hidden`}
       style={{ background: "var(--finna-canvas-alt)", border: "1px solid var(--finna-border)" }}
     >
       <button
@@ -31,7 +31,7 @@ export function ComponentCard({ comp, size, starred, onToggleStar, onOpen }: Pro
         {starred ? "\u2605" : "\u2606"}
       </button>
       <div className={`flex items-center justify-center ${cls.preview}`} style={{ background: "var(--finna-canvas)" }}>
-        <ComponentPreview comp={comp} size={size} />
+        <ComponentPreview comp={comp} size={size} isFullView={false} />
       </div>
       <div className={cls.pad}>
         <div className="text-[12px] font-semibold truncate">{comp.name}</div>

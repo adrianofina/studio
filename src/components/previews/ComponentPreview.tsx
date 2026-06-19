@@ -9,29 +9,41 @@ import { StatusSpine } from "../ui/StatusSpine"
 import { GlassCard } from "../ui/GlassCard"
 import { TextGlow } from "../ui/TextGlow"
 import { AnimatedList } from "../ui/AnimatedList"
+import { MagicBento } from "../ui/MagicBento"
+import { COMPONENTS } from "../../data/library"
 
 interface Props {
   comp: ComponentSpec
   size?: "compact" | "small" | "large"
+  isFullView?: boolean
 }
 
 const RING_SIZE = { compact: 36, small: 56, large: 96 }
 
-export function ComponentPreview({ comp, size = "small" }: Props) {
+export function ComponentPreview({ comp, size = "small", isFullView = false }: Props) {
+  if (isFullView) {
+    if (comp.id === "animated-list") {
+      return (
+        <div className="w-full h-[350px] p-4 bg-zinc-950 rounded-2xl border border-white/5">
+          <AnimatedList items={COMPONENTS} stars={new Set(["shadow"])} onToggleStar={() => {}} onOpen={() => {}} />
+        </div>
+      )
+    }
+    if (comp.id === "magic-bento") {
+      return (
+        <div className="w-full max-w-xl">
+          <MagicBento comp={comp} starred={true} onToggleStar={() => {}} onOpen={() => {}} />
+        </div>
+      )
+    }
+  }
+
   switch (comp.preview) {
     case "shadow":
       return (
-        <SungJinwooShadow status="active" intensity={size === "compact" ? 0.6 : 1}>
-          <div
-            className="rounded-xl flex items-center justify-center"
-            style={{
-              width: size === "compact" ? 56 : size === "large" ? 120 : 80,
-              height: size === "compact" ? 36 : size === "large" ? 72 : 50,
-              background: "var(--finna-surface)",
-              border: "1px solid rgba(255,255,255,0.06)",
-            }}
-          >
-            <span className="text-[9px] font-mono" style={{ color: "var(--finna-text-dim)" }}>card</span>
+        <SungJinwooShadow status="active" intensity={0.8}>
+          <div className="rounded-lg bg-[var(--finna-surface)] border border-white/5 w-16 h-10 flex items-center justify-center">
+            <span className="text-[8px] font-mono text-zinc-500">card</span>
           </div>
         </SungJinwooShadow>
       )
@@ -54,63 +66,33 @@ export function ComponentPreview({ comp, size = "small" }: Props) {
     case "breathing":
       return (
         <BreathingElement>
-          <div
-            className="rounded-lg"
-            style={{ width: size === "compact" ? 24 : 40, height: size === "compact" ? 24 : 40, background: "rgba(131,42,93,0.2)", border: "1px solid var(--finna-primary)" }}
-          />
+          <div className="w-8 h-8 rounded-md bg-purple-500/20 border border-[var(--finna-primary)]" />
         </BreathingElement>
       )
     case "spine":
       return <div style={{ height: size === "compact" ? 32 : 56 }}><StatusSpine status="active" /></div>
-    case "stack":
-      return (
-        <div className="flex">
-          {[0, 1, 2].map(i => (
-            <div
-              key={i}
-              className="rounded-md border"
-              style={{
-                width: size === "compact" ? 28 : 44, height: size === "compact" ? 36 : 60,
-                marginLeft: i ? (size === "compact" ? -10 : -16) : 0,
-                background: "var(--finna-surface)", borderColor: "rgba(255,255,255,0.06)",
-                transform: `rotate(${(i - 1) * 3}deg)`,
-              }}
-            />
-          ))}
-        </div>
-      )
     case "glass":
-      return (
-        <GlassCard>
-          <div className="text-[10px] font-mono" style={{ color: "var(--finna-text-dim)" }}>Glass</div>
-        </GlassCard>
-      )   
+    case "glasscard":
+      return <GlassCard><div className="text-[9px] font-mono text-zinc-500 p-2">Glass</div></GlassCard>
     case "textglow":
       return <TextGlow text="Hello World" intensity="medium" />
-
     case "animated-list":
       return (
-        <div className="w-full max-w-[200px] h-24 overflow-hidden py-1">
-          <AnimatedList
-            items={[{ id: "item-a", name: "Item A", type: "atom", tags: [], desc: "", code: "", preview: "", usedIn: "" }] as any}
-            stars={new Set()}
-            onToggleStar={() => {}}
-            onOpen={() => {}}
-          />
+        <div className="w-full px-4 text-center">
+          <span className="text-[11px] font-mono text-zinc-400 border border-white/10 px-2 py-1 rounded bg-white/5">
+            ? Animated List Container
+          </span>
         </div>
       )
-
     case "magic-bento":
       return (
-        <div className="w-full p-2 bg-zinc-950/40 rounded-xl border border-white/5">
-          <div className="grid grid-cols-2 gap-1.5 h-16">
-            <div className="rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-[9px] font-mono text-purple-400">Wide</div>
-            <div className="rounded-lg bg-zinc-900/60 border border-white/5 flex items-center justify-center text-[9px] font-mono text-zinc-500">Core</div>
-          </div>
+        <div className="w-full px-4 text-center">
+          <span className="text-[11px] font-mono text-purple-400 border border-purple-500/20 px-2 py-1 rounded bg-purple-950/20">
+            ? Magic Bento Surface
+          </span>
         </div>
       )
-
     default:
-      return <span className="text-[10px] font-mono" style={{ color: "var(--finna-text-dim)" }}>[{comp.type}]</span>
+      return <span className="text-[10px] font-mono text-zinc-500">[{comp.type}]</span>
   }
 }
