@@ -19,8 +19,8 @@ export function DiaryPage() {
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
-    const rect = e.currentTarget.getBoundingClientRect()
+ const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+ const rect = e.currentTarget.getBoundingClientRect()
     setMousePos({
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
@@ -133,7 +133,7 @@ export function DiaryPage() {
                       onClick={() => setSelected(p)}
                       onMouseEnter={() => setHoveredId(p.id)}
                       onMouseLeave={() => setHoveredId(null)}
-                      onMouseMove={(e) => handleMouseMove(e, p.id)}
+                    onMouseMove={(e) => handleMouseMove(e)}
                       initial={{ opacity: 0, y: 20, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       transition={{ duration: 0.4, delay: index * 0.04, ease: [0.16, 1, 0.3, 1] }}

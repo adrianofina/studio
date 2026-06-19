@@ -9,7 +9,8 @@ import { StatusSpine } from "../ui/StatusSpine"
 import { GlassCard } from "../ui/GlassCard"
 import { TextGlow } from "../ui/TextGlow"
 import { AnimatedList } from "../ui/AnimatedList"
-import { MagicBento } from "../ui/MagicBento"
+import { MagicBento } from"../ui/MagicBento"
+import { AuroraText } from "../ui/AuroraText"  
 import { COMPONENTS } from "../../data/library"
 
 interface Props {
@@ -92,7 +93,14 @@ export function ComponentPreview({ comp, size = "small", isFullView = false }: P
           </span>
         </div>
       )
-    default:
+    case "aurora-text":
+      return (
+        <div className="w-full text-center px-4">
+          <AuroraText className={isFullView ? "text-3xl tracking-tight" : "text-sm tracking-wide"}>
+            {isFullView ? "Finna Identity Engine" : "Aurora Text"}
+          </AuroraText>
+        </div>
+      )
       return <span className="text-[10px] font-mono text-zinc-500">[{comp.type}]</span>
   }
 }
