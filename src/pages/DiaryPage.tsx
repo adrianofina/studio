@@ -3,8 +3,9 @@ import { PROJECTS } from "../data/projects"
 import type { ProjectEntry } from "../types"
 import { ArrowLeft, LayoutGrid, List as ListIcon } from "lucide-react"
 import { SungJinwooShadow } from "../components/ui/SungJinwooShadow"
-import { StatusSpine } from "../components/ui/StatusSpine"
 import { TextGlow } from "../components/ui/TextGlow"
+import { AnimatedList } from "../components/ui/AnimatedList"
+import { motion } from "motion/react"
 
 const STATUS_MAP: Record<ProjectEntry["status"], "completed" | "active" | "inactive"> = {
   completed: "completed",
@@ -15,6 +16,16 @@ const STATUS_MAP: Record<ProjectEntry["status"], "completed" | "active" | "inact
 export function DiaryPage() {
   const [selected, setSelected] = useState<ProjectEntry | null>(null)
   const [viewLayout, setViewLayout] = useState<"list" | "tab">("list")
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    setMousePos({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    })
+  }
 
   if (selected) {
     return (
@@ -58,6 +69,14 @@ export function DiaryPage() {
 
   const allFlattenedItems = [...PROJECTS].sort((a, b) => b.date.localeCompare(a.date))
 
+  const formatItems = (itemsArray: ProjectEntry[]) => 
+    itemsArray.map(p => ({
+      id: p.id,
+      name: p.id,
+      type: p.date,
+      raw: p
+    }))
+
   return (
     <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 pb-28" style={{ background: "var(--finna-canvas)" }}>
       <div className="max-w-3xl mx-auto flex flex-col gap-6">
@@ -80,58 +99,85 @@ export function DiaryPage() {
           </div>
         </div>
 
-        <div>
+        <div className="flex-1">
           {viewLayout === "list" ? (
             <div className="flex flex-col gap-8">
               {buckets.map(bucket => {
-                const items = PROJECTS.filter(p => p.status === bucket.key)
-                if (!items.length) return null
+                const filtered = PROJECTS.filter(p => p.status === bucket.key)
+                if (!filtered.length) return null
                 return (
                   <section key={bucket.key}>
                     <div className="text-[10px] uppercase tracking-[0.15em] font-mono mb-3" style={{ color: "var(--finna-text-dim)" }}>
-                      {bucket.label} — {items.length}
+                      {bucket.label} ï¿½ {filtered.length}
                     </div>
-                    
-                    <div className="flex flex-col gap-2">
-                      {items.map((p) => (
-                        <div
-                          key={p.id}
-                          onClick={() => setSelected(p)}
-                          className="flex items-stretch gap-4 p-4 rounded-2xl transition-all border border-white/5 bg-zinc-900/20 cursor-pointer hover:border-zinc-700/50"
-                        >
-                          <StatusSpine status={STATUS_MAP[p.status]} />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-[13px] font-semibold tracking-tight text-white">{p.id}</span>
-                              <span className="text-[10px]" style={{ color: "var(--finna-text-dim)" }}>{p.date}</span>
-                            </div>
-                            <SungJinwooShadow status={STATUS_MAP[p.status]}>
-                              <div className="h-1 w-full bg-zinc-800/50 rounded" />
-                            </SungJinwooShadow>
-                          </div>
-                        </div>
-                      ))}
+                    <div className="max-h-[360px] overflow-hidden">
+                      <AnimatedList 
+                        items={formatItems(filtered)}
+                        onOpen={(item) => setSelected(item.raw)}
+                        displayScrollbar={false}
+                      />
                     </div>
                   </section>
                 )
               })}
             </div>
           ) : (
+            /* True Magic Bento Grid System Treatment for Tabs */
             <div className="w-full mt-2">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {allFlattenedItems.map((p) => (
-                  <div 
-                    key={p.id} 
-                    onClick={() => setSelected(p)}
-                    className="p-4 rounded-2xl border border-white/5 bg-zinc-900/40 cursor-pointer hover:border-purple-500/30 transition-all"
-                  >
-                    <div className="text-[12px] font-semibold text-white mb-1">{p.id}</div>
-                    <div className="text-[10px] text-zinc-500 font-mono mb-2">{p.date}</div>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded font-mono bg-zinc-800/60 text-zinc-400 capitalize">
-                      {p.status}
-                    </span>
-                  </div>
-                ))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {allFlattenedItems.map((p, index) => {
+                  const isHovered = hoveredId === p.id
+                  return (
+                    <motion.div 
+                      key={p.id} 
+                      onClick={() => setSelected(p)}
+                      onMouseEnter={() => setHoveredId(p.id)}
+                      onMouseLeave={() => setHoveredId(null)}
+                      onMouseMove={(e) => handleMouseMove(e, p.id)}
+                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ duration: 0.4, delay: index * 0.04, ease: [0.16, 1, 0.3, 1] }}
+                      className="relative p-5 rounded-2xl border cursor-pointer overflow-hidden group backdrop-blur-md transition-colors duration-300"
+                      style={{ 
+                        background: "linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.005) 100%)",
+                        backgroundColor: "var(--finna-surface, #110e15)",
+                        borderColor: isHovered ? "rgba(131, 42, 93, 0.4)" : "rgba(255, 255, 255, 0.04)"
+                      }}
+                    >
+                      {/* Dynamic Neon Background Spotlight Tracking */}
+                      {isHovered && (
+                        <div 
+                          className="absolute pointer-events-none rounded-full blur-[60px] opacity-25 transition-opacity duration-300"
+                          style={{
+                            width: "140px",
+                            height: "140px",
+                            background: "var(--finna-primary, #832a5d)",
+                            left: `${mousePos.x - 70}px`,
+                            top: `${mousePos.y - 70}px`,
+                          }}
+                        />
+                      )}
+
+                      <div className="relative z-10 flex flex-col h-full justify-between gap-4">
+                        <div>
+                          <div className="text-[13px] font-bold text-white/90 group-hover:text-white transition-colors tracking-tight">
+                            {p.id}
+                          </div>
+                          <div className="text-[10px] text-zinc-500 font-mono mt-0.5">{p.date}</div>
+                        </div>
+
+                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/[0.02]">
+                          <span className="text-[9px] px-2 py-0.5 rounded-md font-mono bg-white/5 text-zinc-400 capitalize border border-white/5">
+                            {p.status}
+                          </span>
+                          <span className="text-[10px] font-mono opacity-0 group-hover:opacity-60 group-hover:translate-x-1 transition-all" style={{ color: "var(--finna-primary)" }}>
+                            View details ?
+                          </span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )
+                })}
               </div>
             </div>
           )}
