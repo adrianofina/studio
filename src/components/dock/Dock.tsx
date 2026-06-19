@@ -1,6 +1,6 @@
 import { useState, useRef } from "react"
 import type { ReactElement } from "react"
-import { LayoutGrid, Notebook, Palette, Layers, PaletteIcon } from "lucide-react"
+import { LayoutGrid, Notebook, Palette, Layers, ArchiveIcon } from "lucide-react"
 
 interface DockItem {
   key: string
@@ -9,11 +9,11 @@ interface DockItem {
 }
 
 const ITEMS: DockItem[] = [
-  { key: "archive", label: "Archive", icon: <LayoutGrid size={18} /> },
+  { key: "archive", label: "Archive", icon: <ArchiveIcon size={18} /> },
   { key: "diary", label: "Diary", icon: <Notebook size={18} /> },
   { key: "collections", label: "Collections", icon: <Layers size={18} /> },
   { key: "colorlab", label: "Color Lab", icon: <Palette size={18} /> },
-  { key: "gradients", label: "Gradients", icon: <PaletteIcon size={18} /> },
+  { key: "gradients", label: "Gradients", icon: <LayoutGrid  size={18} /> },
 ]
 
 interface Props {

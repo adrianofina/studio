@@ -31,7 +31,7 @@ export function ComponentCard({ comp, size, starred, onToggleStar, onOpen }: Pro
         {starred ? "\u2605" : "\u2606"}
       </button>
       <div className={`flex items-center justify-center ${cls.preview}`} style={{ background: "var(--finna-canvas)" }}>
-        <ComponentPreview comp={comp} size={size} isFullView={false} />
+        <ComponentPreview comp={comp} size={size}  />
       </div>
       <div className={cls.pad}>
         <div className="text-[12px] font-semibold truncate">{comp.name}</div>
