@@ -1,59 +1,133 @@
 import { useState } from "react"
-import { motion } from "motion/react"
 
-const MOCK_MOVIES = [
-  { id: "m1", title: "How to Make It", year: "2026", bg: "rgba(131,42,93,0.3)" },
-  { id: "m2", title: "FROM", year: "2022", bg: "rgba(99,102,241,0.3)" },
-  { id: "m3", title: "JUJUTSU KAISEN", year: "2020", bg: "rgba(16,185,129,0.3)" },
-  { id: "m4", title: "Perfect Crop", year: "2026", bg: "rgba(245,158,11,0.3)" },
-  { id: "m5", title: "The Devil Wears Prada", year: "2026", bg: "rgba(239,68,68,0.3)" },
+interface StackItem {
+  id: string
+  title: string
+  year: number
+  image?: string
+}
+
+interface Props {
+  items?: StackItem[]
+  overlap?: number
+}
+
+const DEMO_ITEMS: StackItem[] = [
+  { id: "1", title: "How to Make Killings", year: 2026 },
+  { id: "2", title: "FROM", year: 2022 },
+  { id: "3", title: "Jujutsu Kaisen", year: 2020 },
+  { id: "4", title: "Perfect Crown", year: 2026 },
+  { id: "5", title: "The Devil Wears", year: 2026 },
+  { id: "6", title: "The Rookie", year: 2018 },
+  { id: "7", title: "Constantine", year: 2018 },
 ]
 
-export function TheStack() {
-  const [isExpanded, setIsExpanded] = useState(false)
+const GRADIENTS = [
+  "linear-gradient(160deg, #3B2244, #1A0F1A)",
+  "linear-gradient(160deg, #1a2a44, #0f1a2a)",
+  "linear-gradient(160deg, #2a1a44, #1a0f2a)",
+  "linear-gradient(160deg, #441a2a, #2a0f1a)",
+  "linear-gradient(160deg, #2a3a1a, #1a2a0f)",
+  "linear-gradient(160deg, #1a3a3a, #0f2a2a)",
+  "linear-gradient(160deg, #3a2a1a, #2a1a0f)",
+]
+
+// Horizontal scroll row of overlapping poster cards matching the
+// KakaFlix reference: cards overlap by `overlap` pixels, title +
+// year shown below each. Clicking a card shows a floating action
+// panel (Watch Later, Liked, Remove) positioned over it.
+
+export function TheStack({ items = DEMO_ITEMS, overlap = 20 }: Props) {
+  const [activeId, setActiveId] = useState<string | null>(null)
 
   return (
-    <div className="w-full flex flex-col items-center justify-center py-6 select-none relative min-h-[180px]">
-      <div 
-        className="relative flex items-center justify-center w-full max-w-md h-[120px] group cursor-pointer"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        {MOCK_MOVIES.map((movie, idx) => {
-          const offset = idx - 2
+    <div style={{ overflowX: "auto", paddingBottom: 16, cursor: "grab" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", paddingLeft: 8, paddingRight: 8, minWidth: "max-content" }}>
+        {items.map((item, idx) => {
+          const isActive = activeId === item.id
           return (
-            <motion.div
-              key={movie.id}
-              className="absolute w-[80px] h-[115px] rounded-xl border border-white/10 flex flex-col justify-end p-2 shadow-2xl backdrop-blur-md"
-              style={{ 
-                background: `linear-gradient(to top, rgba(0,0,0,0.95), transparent), ${movie.bg}`,
-                zIndex: 10 + idx,
-                transformOrigin: "bottom center"
+            <div
+              key={item.id}
+              style={{
+                position: "relative",
+                marginLeft: idx === 0 ? 0 : -overlap,
+                zIndex: isActive ? 100 : items.length - idx,
+                transition: "z-index 0s, transform 0.2s ease",
+                transform: isActive ? "translateY(-8px) scale(1.03)" : "none",
               }}
-              animate={{
-                x: isExpanded ? offset * 85 : offset * 16,
-                rotate: isExpanded ? offset * 5 : offset * 1.5,
-                scale: isExpanded && idx === 2 ? 1.1 : 1,
-                y: isExpanded && idx === 2 ? -10 : 0
-              }}
-              transition={{ type: "spring", stiffness: 300, damping: 22 }}
             >
-              <span className="text-[8px] font-bold text-white truncate block">{movie.title}</span>
-              <span className="text-[6px] text-zinc-400 font-mono block">{movie.year}</span>
-            </motion.div>
+              {/* Card */}
+              <div
+                onClick={() => setActiveId(isActive ? null : item.id)}
+                style={{
+                  width: 130,
+                  height: 190,
+                  borderRadius: 12,
+                  overflow: "hidden",
+                  background: item.image ? `url(${item.image}) center/cover` : GRADIENTS[idx % GRADIENTS.length],
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  cursor: "pointer",
+                  position: "relative",
+                  flexShrink: 0,
+                  boxShadow: isActive ? "0 8px 32px rgba(0,0,0,0.5)" : "2px 0 8px rgba(0,0,0,0.3)",
+                }}
+              />
+
+              {/* Floating action panel -- appears on click */}
+              {isActive && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    zIndex: 200,
+                    background: "rgba(18,12,24,0.97)",
+                    backdropFilter: "blur(20px)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: 14,
+                    padding: "10px 12px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 6,
+                    minWidth: 150,
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+                  }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  {[
+                    { label: "Watch Later", emoji: "??", color: "var(--finna-amber)" },
+                    { label: "Liked", emoji: "?", color: "var(--finna-crimson)" },
+                    { label: "Remove", emoji: "??", color: "rgba(255,255,255,0.4)" },
+                  ].map(action => (
+                    <button
+                      key={action.label}
+                      onClick={() => setActiveId(null)}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 7,
+                        padding: "8px 10px", borderRadius: 8,
+                        border: "1px solid rgba(255,255,255,0.07)",
+                        background: "transparent", cursor: "pointer",
+                        fontSize: 12, fontWeight: 500, color: action.color,
+                        width: "100%", textAlign: "left",
+                      }}
+                    >
+                      <span>{action.emoji}</span> {action.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Title + year below card */}
+              <div style={{ padding: "6px 2px 0" }}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: "var(--finna-text)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 130 }}>
+                  {item.title}
+                </div>
+                <div style={{ fontSize: 9, color: "var(--finna-text-dim)", marginTop: 1 }}>{item.year}</div>
+              </div>
+            </div>
           )
         })}
-
-        {isExpanded && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 15 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="absolute z-50 bg-zinc-900/95 border border-white/15 rounded-xl p-2.5 flex flex-col gap-1.5 shadow-2xl min-w-[100px]"
-          >
-            <button className="bg-amber-500 text-black text-[9px] px-2 py-1 rounded font-bold font-mono tracking-wide">?? Watch Later</button>
-            <button className="bg-zinc-800 text-white text-[9px] px-2 py-1 rounded border border-white/5 font-mono">?? Liked</button>
-            <button className="bg-red-950/40 text-red-400 text-[9px] px-2 py-1 rounded border border-red-900/20 font-mono">??? Remove</button>
-          </motion.div>
-        )}
       </div>
     </div>
   )

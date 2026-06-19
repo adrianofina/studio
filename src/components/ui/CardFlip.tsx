@@ -1,66 +1,118 @@
 import { useState } from "react"
-import { motion } from "motion/react"
 
-interface CardFlipProps {
+interface Props {
   title?: string
-  year?: string
-  rating?: string
-  synopsis?: string
+  year?: number
+  rating?: number
+  description?: string
+  accentColor?: string
+  image?: string
 }
 
-export function CardFlip({ 
-  title = "Toy Story 5", 
-  year = "2026", 
-  rating = "8.7",
-  synopsis = "When Bonnie receives a Lilypad tablet as a gift and becomes obsessed, Buzz, Woody, Jessie and the rest of the gang's jobs become exponentially harder."
-}: CardFlipProps) {
-  const [isFlipped, setIsFlipped] = useState(false)
+// Front: poster image (or gradient placeholder), title, year, rating.
+// Back: description text + two action buttons (Trailer primary,
+// Save secondary). Genuine 3D rotateY flip on click -- matching
+// the KakaFlix reference exactly.
+
+export function CardFlip({
+  title = "Obsession",
+  year = 2026,
+  rating = 7.9,
+  description = "A gripping psychological thriller that blurs the lines between desire and danger.",
+  accentColor = "var(--finna-primary)",
+  image,
+}: Props) {
+  const [flipped, setFlipped] = useState(false)
 
   return (
-    <div 
-      className="w-[100px] h-[140px] cursor-pointer relative select-none"
-      style={{ perspective: "1000px" }}
-      onClick={() => setIsFlipped(!isFlipped)}
+    <div
+      onClick={() => setFlipped(f => !f)}
+      className="cursor-pointer"
+      style={{ width: 160, height: 240, perspective: "1000px" }}
     >
-      <motion.div
-        className="w-full h-full relative"
-        style={{ transformStyle: "preserve-3d" }}
-        animate={{ rotateY: isFlipped ? 180 : 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          position: "relative",
+          transformStyle: "preserve-3d",
+          transition: "transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)",
+          transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+        }}
       >
-        {/* Front Side */}
-        <div 
-          className="absolute inset-0 w-full h-full rounded-xl border border-white/10 flex flex-col justify-end p-2 backface-hidden"
-          style={{ 
-            background: "linear-gradient(to top, #000, transparent), rgba(131,42,93,0.4)",
-            WebkitBackfaceVisibility: "hidden"
+        {/* FRONT */}
+        <div
+          style={{
+            position: "absolute", inset: 0,
+            backfaceVisibility: "hidden",
+            borderRadius: 12,
+            overflow: "hidden",
+            background: image ? `url(${image}) center/cover` : "linear-gradient(160deg, var(--finna-surface), var(--finna-canvas))",
+            border: "1px solid rgba(255,255,255,0.07)",
           }}
         >
-          <div className="bg-amber-500 text-black text-[7px] font-bold font-mono px-1 rounded absolute top-2 right-2">? {rating}</div>
-          <span className="text-[9px] font-bold text-white block truncate">{title}</span>
-          <span className="text-[7px] text-zinc-500 font-mono block">{year}</span>
+          {/* Bottom info bar */}
+          <div
+            style={{
+              position: "absolute", bottom: 0, left: 0, right: 0,
+              padding: "24px 10px 10px",
+              background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)",
+            }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", marginBottom: 3 }}>{title}</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>{year}</span>
+              <span style={{ fontSize: 11, color: "#F59E0B" }}>? {rating}</span>
+            </div>
+          </div>
         </div>
 
-        {/* Back Side (Properly Oriented Context) */}
-        <div 
-          className="absolute inset-0 w-full h-full rounded-xl border border-amber-500/20 bg-zinc-900 p-2 flex flex-col justify-between backface-hidden"
-          style={{ 
+        {/* BACK */}
+        <div
+          style={{
+            position: "absolute", inset: 0,
+            backfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
-            WebkitBackfaceVisibility: "hidden"
+            borderRadius: 12,
+            overflow: "hidden",
+            background: "rgba(20,12,28,0.95)",
+            backdropFilter: "blur(16px)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            padding: 14,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
           }}
         >
           <div>
-            <span className="text-[8px] font-bold text-amber-500 block mb-1 truncate">{title}</span>
-            <p className="text-[6px] leading-tight text-zinc-400 overflow-hidden line-clamp-5">
-              {synopsis}
-            </p>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", marginBottom: 8 }}>{title}</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", lineHeight: 1.6 }}>{description}</div>
           </div>
-          <div className="flex flex-col gap-1 mt-1">
-            <button className="w-full py-0.5 rounded bg-amber-500 text-black text-[7px] font-bold font-mono text-center">? Trailer</button>
-            <button className="w-full py-0.5 rounded bg-zinc-800 text-white text-[6px] font-mono text-center border border-white/5">?? Save</button>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 12 }}>
+            <button
+              onClick={e => e.stopPropagation()}
+              style={{
+                padding: "8px 0", borderRadius: 8, border: "none", cursor: "pointer",
+                background: accentColor, color: "#fff", fontSize: 11, fontWeight: 600,
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
+              }}
+            >
+              ? Trailer
+            </button>
+            <button
+              onClick={e => e.stopPropagation()}
+              style={{
+                padding: "7px 0", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)",
+                cursor: "pointer", background: "transparent", color: "rgba(255,255,255,0.6)",
+                fontSize: 11,
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
+              }}
+            >
+              ?? Save
+            </button>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }
