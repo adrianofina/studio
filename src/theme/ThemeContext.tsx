@@ -1,11 +1,11 @@
 import type { ReactNode } from "react"
-import { createContext, useContext, useEffect, useState } from "react"
 import type { FinnaTheme, ColorToken } from "./tokens"
+import { createContext, useContext, useEffect, useState } from "react"
 import { DEFAULT_THEME } from "./tokens"
 import { applyDepthLightness } from "./colorUtils"
 
-const STORAGE_KEY = "finna-theme"
-const HISTORY_KEY = "finna-theme-history"
+const STORAGE_KEY = "studio-theme"
+const HISTORY_KEY = "studio-theme-history"
 
 interface ThemeContextValue {
   theme: FinnaTheme
@@ -17,26 +17,21 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
-// THIS WAS THE BUG: this function read theme.colors[].hex directly and
-// never ran it through applyDepthLightness. Moving a slider updated
-// React state correctly, but the CSS variables written to :root never
-// reflected depth/lightness -- so nothing visible ever changed.
-
 function applyToDocument(theme: FinnaTheme) {
   const root = document.documentElement
-  root.style.setProperty("--finna-canvas", theme.canvas)
-  root.style.setProperty("--finna-canvas-alt", theme.canvasAlt)
-  root.style.setProperty("--finna-surface", theme.surface)
-  root.style.setProperty("--finna-text", theme.textPrimary)
-  root.style.setProperty("--finna-text-secondary", theme.textSecondary)
-  root.style.setProperty("--finna-text-dim", theme.textDim)
-  root.style.setProperty("--finna-border", theme.border)
+  root.style.setProperty("--studio-canvas", theme.canvas)
+  root.style.setProperty("--studio-canvas-alt", theme.canvasAlt)
+  root.style.setProperty("--studio-surface", theme.surface)
+  root.style.setProperty("--studio-text", theme.textPrimary)
+  root.style.setProperty("--studio-text-secondary", theme.textSecondary)
+  root.style.setProperty("--studio-text-dim", theme.textDim)
+  root.style.setProperty("--studio-border", theme.border)
   theme.colors.forEach(c => {
     const finalColor = applyDepthLightness(c.hex, c.depth, c.lightness)
-    root.style.setProperty(`--finna-${c.key}`, finalColor)
+    root.style.setProperty(`--studio-${c.key}`, finalColor)
   })
   const primary = theme.colors.find(c => c.key === "primary")
-  if (primary) root.style.setProperty("--finna-primary", applyDepthLightness(primary.hex, primary.depth, primary.lightness))
+  if (primary) root.style.setProperty("--studio-primary", applyDepthLightness(primary.hex, primary.depth, primary.lightness))
 }
 
 function isValidTheme(t: unknown): t is FinnaTheme {
@@ -46,10 +41,7 @@ function isValidTheme(t: unknown): t is FinnaTheme {
 function loadTheme(): FinnaTheme {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      if (isValidTheme(parsed)) return parsed
-    }
+    if (raw) { const parsed = JSON.parse(raw); if (isValidTheme(parsed)) return parsed }
   } catch {}
   return DEFAULT_THEME
 }
@@ -57,10 +49,7 @@ function loadTheme(): FinnaTheme {
 function loadHistory(): FinnaTheme[] {
   try {
     const raw = localStorage.getItem(HISTORY_KEY)
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      if (Array.isArray(parsed)) return parsed.filter(isValidTheme)
-    }
+    if (raw) { const parsed = JSON.parse(raw); if (Array.isArray(parsed)) return parsed.filter(isValidTheme) }
   } catch {}
   return []
 }
@@ -83,9 +72,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     })
   }
 
-  // updateColor previously mutated state correctly -- the bug was
-  // entirely downstream in applyToDocument, now fixed above. This
-  // still needs to produce a NEW theme object so the effect re-fires.
   const updateColor = (key: string, patch: Partial<ColorToken>) => {
     setThemeState(prev => ({
       ...prev,

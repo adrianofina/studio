@@ -1,6 +1,6 @@
 export interface PropControl {
   key: string
-  type: "number" | "select" | "color" | "boolean" | "text"
+  type: "number" | "select" | "color" | "boolean" | "text" | "image"
   label: string
   default: unknown
   min?: number
