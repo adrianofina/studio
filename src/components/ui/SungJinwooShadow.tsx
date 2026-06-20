@@ -8,6 +8,7 @@ export interface SungJinwooShadowProps {
   blur?: number
   children: ReactNode
   className?: string
+  intensity?: number
 }
 
 export function SungJinwooShadow({

@@ -37,7 +37,7 @@ export default function App() {
     localStorage.setItem(STARS_KEY, JSON.stringify([...stars]))
   }, [stars])
 
-  const tags = ["all", ...new Set(COMPONENTS.flatMap(c => c.tags))]
+  const tags: string[] = ["all", ...Array.from(new Set(COMPONENTS.flatMap((c: any) => c.tags)))]
 
   const toggleStar = (id: string) => {
     setStars(prev => {
@@ -124,3 +124,4 @@ export default function App() {
     </ThemeProvider>
   )
 }
+
