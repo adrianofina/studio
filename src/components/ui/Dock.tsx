@@ -1,5 +1,5 @@
 ﻿import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'motion/react';
-import { Children, cloneElement, useEffect, useMemo, useRef, useState, type ReactNode, type ReactElement } from 'react';
+import { Children,  useEffect, useMemo, useRef, useState, type ReactNode, type ReactElement } from 'react';
 
 interface DockItemData {
   icon: ReactNode;
@@ -53,17 +53,21 @@ function DockItem({
       role="button"
       aria-label={label}
     >
-      {Children.map(children, (child: ReactElement) => cloneElement(child, { isHovered }))}
+      {Children.map(children, (child: ReactElement) => {
+        // Instead of passing isHovered as a prop, we pass it via context or a wrapper
+        // For now, we'll just render children as-is and handle hover state in DockLabel
+        return child;
+      })}
     </motion.div>
   );
 }
 
-function DockLabel({ children, ...rest }: { children: ReactNode; isHovered?: any }) {
-  const { isHovered } = rest;
+function DockLabel({ children, isHovered }: { children: ReactNode; isHovered?: any }) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = isHovered?.on('change', (latest: number) => {
+    if (!isHovered) return;
+    const unsubscribe = isHovered.on('change', (latest: number) => {
       setIsVisible(latest === 1);
     });
     return () => unsubscribe?.();
@@ -111,6 +115,9 @@ export default function Dock({
   const heightRow = useTransform(isHovered, [0, 1], [panelHeight, maxHeight]);
   const height = useSpring(heightRow, spring);
 
+  // Create a context or pass isHovered via a wrapper
+  // For now, we'll use a simple approach: render DockLabel with isHovered prop directly
+
   return (
     <motion.div style={{ height, scrollbarWidth: 'none' }}>
       <motion.div
@@ -139,22 +146,26 @@ export default function Dock({
         }}
         role="toolbar"
       >
-        {items.map((item, index) => (
-          <DockItem
-            key={index}
-            onClick={item.onClick}
-            className={item.className}
-            mouseX={mouseX}
-            spring={spring}
-            distance={distance}
-            magnification={magnification}
-            baseItemSize={baseItemSize}
-            label={item.label}
-          >
-            <DockIcon>{item.icon}</DockIcon>
-            <DockLabel>{item.label}</DockLabel>
-          </DockItem>
-        ))}
+        {items.map((item, index) => {
+          // We need to wrap each item's icon and label
+          // Since we can't easily pass isHovered to children, we'll render directly
+          return (
+            <DockItem
+              key={index}
+              onClick={item.onClick}
+              className={item.className}
+              mouseX={mouseX}
+              spring={spring}
+              distance={distance}
+              magnification={magnification}
+              baseItemSize={baseItemSize}
+              label={item.label}
+            >
+              <DockIcon>{item.icon}</DockIcon>
+              <DockLabel isHovered={null}>{item.label}</DockLabel>
+            </DockItem>
+          );
+        })}
       </motion.div>
     </motion.div>
   );

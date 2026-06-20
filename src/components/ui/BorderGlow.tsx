@@ -1,4 +1,4 @@
-﻿import { useRef, useCallback, useEffect } from 'react';
+﻿import { useRef, useCallback } from 'react';
 
 interface BorderGlowProps {
   children: React.ReactNode;
@@ -10,8 +10,6 @@ interface BorderGlowProps {
   glowRadius?: number;
   glowIntensity?: number;
   coneSpread?: number;
-  animated?: boolean;
-  colors?: string[];
   fillOpacity?: number;
 }
 
@@ -25,8 +23,6 @@ export function BorderGlow({
   glowRadius = 40,
   glowIntensity = 1.0,
   coneSpread = 25,
-  animated = false,
-  colors = ['#c084fc', '#f472b6', '#38bdf8'],
   fillOpacity = 0.3,
 }: BorderGlowProps) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -71,7 +67,6 @@ export function BorderGlow({
         transform: 'translate3d(0,0,0.01px)',
       } as React.CSSProperties}
     >
-      {/* Edge glow layer */}
       <div
         className="absolute inset-0 pointer-events-none rounded-[inherit] transition-opacity duration-300"
         style={{
@@ -87,7 +82,6 @@ export function BorderGlow({
         onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
         onMouseLeave={(e) => { e.currentTarget.style.opacity = '0'; }}
       />
-
       <div className="relative z-10">{children}</div>
     </div>
   );

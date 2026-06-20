@@ -13,11 +13,10 @@ interface MasonryProps {
   ease?: string;
   duration?: number;
   stagger?: number;
-  animateFrom?: 'top' | 'bottom' | 'left' | 'right' | 'center' | 'random';
+  animateFrom?: 'top' | 'bottom' | 'left' | 'right' | 'center';
   scaleOnHover?: boolean;
   hoverScale?: number;
   blurToFocus?: boolean;
-  colorShiftOnHover?: boolean;
 }
 
 const defaultItems: MasonryItem[] = [
@@ -52,10 +51,10 @@ const useMeasure = () => {
     ro.observe(ref.current);
     return () => ro.disconnect();
   }, []);
-  return [ref, size];
+  return { ref, width: size.width, height: size.height };
 };
 
-export default function Masonry({
+export function Masonry({
   items = defaultItems,
   ease = 'power3.out',
   duration = 0.6,
@@ -64,7 +63,6 @@ export default function Masonry({
   scaleOnHover = true,
   hoverScale = 0.95,
   blurToFocus = true,
-  colorShiftOnHover = false,
 }: MasonryProps) {
   const columns = useMedia(
     ['(min-width:1500px)', '(min-width:1000px)', '(min-width:600px)', '(min-width:400px)'],
@@ -72,7 +70,7 @@ export default function Masonry({
     1
   );
 
-  const [containerRef, { width }] = useMeasure();
+  const { ref: containerRef, width } = useMeasure();
   const [imagesReady, setImagesReady] = useState(false);
 
   useEffect(() => {
@@ -109,27 +107,57 @@ export default function Masonry({
   const hasMounted = useRef(false);
 
   useLayoutEffect(() => {
-    if (!imagesReady) return;
+    if (!imagesReady || !grid.length) return;
     grid.forEach((item, index) => {
       const selector = `[data-key="${item.id}"]`;
       const animationProps = { x: item.x, y: item.y, width: item.w, height: item.h };
 
       if (!hasMounted.current) {
-        let initialX = item.x, initialY = item.y;
+        let initialX = item.x,
+          initialY = item.y;
         switch (animateFrom) {
-          case 'top': initialY = -200; break;
-          case 'bottom': initialY = window.innerHeight + 200; break;
-          case 'left': initialX = -200; break;
-          case 'right': initialX = window.innerWidth + 200; break;
-          default: initialY = item.y + 100;
+          case 'top':
+            initialY = -200;
+            break;
+          case 'bottom':
+            initialY = window.innerHeight + 200;
+            break;
+          case 'left':
+            initialX = -200;
+            break;
+          case 'right':
+            initialX = window.innerWidth + 200;
+            break;
+          default:
+            initialY = item.y + 100;
         }
 
-        gsap.fromTo(selector,
-          { opacity: 0, x: initialX, y: initialY, width: item.w, height: item.h, ...(blurToFocus && { filter: 'blur(10px)' }) },
-          { opacity: 1, ...animationProps, ...(blurToFocus && { filter: 'blur(0px)' }), duration: 0.8, ease: 'power3.out', delay: index * stagger }
+        gsap.fromTo(
+          selector,
+          {
+            opacity: 0,
+            x: initialX,
+            y: initialY,
+            width: item.w,
+            height: item.h,
+            ...(blurToFocus && { filter: 'blur(10px)' }),
+          },
+          {
+            opacity: 1,
+            ...animationProps,
+            ...(blurToFocus && { filter: 'blur(0px)' }),
+            duration: 0.8,
+            ease: 'power3.out',
+            delay: index * stagger,
+          }
         );
       } else {
-        gsap.to(selector, { ...animationProps, duration, ease, overwrite: 'auto' });
+        gsap.to(selector, {
+          ...animationProps,
+          duration: duration,
+          ease: ease,
+          overwrite: 'auto',
+        });
       }
     });
     hasMounted.current = true;
@@ -150,7 +178,7 @@ export default function Masonry({
             width: item.w,
             height: item.h,
           }}
-          onMouseEnter={(e) => {
+          onMouseEnter={() => {
             if (scaleOnHover) {
               gsap.to(`[data-key="${item.id}"]`, { scale: hoverScale, duration: 0.3, ease: 'power2.out' });
             }
@@ -177,3 +205,5 @@ export default function Masonry({
     </div>
   );
 }
+
+export default Masonry;

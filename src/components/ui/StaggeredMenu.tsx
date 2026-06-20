@@ -20,7 +20,6 @@ interface StaggeredMenuProps {
   displaySocials?: boolean;
   displayItemNumbering?: boolean;
   className?: string;
-  logoUrl?: string;
   menuButtonColor?: string;
   openMenuButtonColor?: string;
   accentColor?: string;
@@ -38,7 +37,6 @@ export function StaggeredMenu({
   displaySocials = true,
   displayItemNumbering = true,
   className = '',
-  logoUrl = '',
   menuButtonColor = '#fff',
   openMenuButtonColor = '#fff',
   accentColor = '#B000FF',
@@ -71,24 +69,20 @@ export function StaggeredMenu({
     const offscreen = position === 'left' ? -100 : 100;
 
     if (target) {
-      // Kill any existing tweens
       if (tlRef.current) {
         tlRef.current.kill();
         tlRef.current = null;
       }
 
-      // Reset everything
       gsap.set(panel, { xPercent: offscreen, opacity: 0 });
       gsap.set(menuItemsRef.current, { y: 50, opacity: 0 });
       gsap.set(socialLinksRef.current, { y: 30, opacity: 0 });
       if (socialTitleRef.current) gsap.set(socialTitleRef.current, { opacity: 0 });
 
-      // Create staggered timeline
       const tl = gsap.timeline({
         onComplete: () => { busyRef.current = false; }
       });
 
-      // Panel slides in
       tl.to(panel, {
         xPercent: 0,
         opacity: 1,
@@ -96,7 +90,6 @@ export function StaggeredMenu({
         ease: 'power4.out',
       }, 0);
 
-      // Menu items stagger in
       tl.to(menuItemsRef.current, {
         y: 0,
         opacity: 1,
@@ -106,7 +99,6 @@ export function StaggeredMenu({
         overwrite: 'auto',
       }, 0.15);
 
-      // Socials fade in
       if (socialTitleRef.current) {
         tl.to(socialTitleRef.current, {
           opacity: 1,
@@ -127,7 +119,6 @@ export function StaggeredMenu({
       onMenuOpen?.();
 
     } else {
-      // Close
       const tl = gsap.timeline({
         onComplete: () => { busyRef.current = false; }
       });
@@ -143,7 +134,6 @@ export function StaggeredMenu({
       onMenuClose?.();
     }
 
-    // Toggle button color
     if (changeMenuColorOnOpen && toggleRef.current) {
       gsap.to(toggleRef.current, {
         color: target ? openMenuButtonColor : menuButtonColor,
@@ -154,7 +144,6 @@ export function StaggeredMenu({
     }
   }, [position, menuButtonColor, openMenuButtonColor, changeMenuColorOnOpen, onMenuOpen, onMenuClose]);
 
-  // Click outside to close
   useLayoutEffect(() => {
     if (!closeOnClickAway || !open) return;
     const handleClick = (e: MouseEvent) => {
@@ -173,7 +162,6 @@ export function StaggeredMenu({
 
   return (
     <div className={`staggered-menu-wrapper ${className}`} style={{ position: 'relative', zIndex: 40, width: '100%', height: '100%' }}>
-      {/* Toggle Button */}
       <button
         ref={toggleRef}
         onClick={toggleMenu}
@@ -198,7 +186,6 @@ export function StaggeredMenu({
         <span style={{ fontSize: '18px' }}>{open ? '✕' : '☰'}</span>
       </button>
 
-      {/* Panel with layers */}
       <div
         ref={panelRef}
         style={{
@@ -221,7 +208,6 @@ export function StaggeredMenu({
         }}
         data-open={open}
       >
-        {/* Layer effects (like the original) */}
         <div
           style={{
             position: 'absolute',
@@ -246,7 +232,6 @@ export function StaggeredMenu({
         />
 
         <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {/* Menu Items */}
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, flex: 1, marginTop: '1rem' }}>
             {items.map((item, idx) => (
               <li
@@ -298,7 +283,6 @@ export function StaggeredMenu({
             ))}
           </ul>
 
-          {/* Socials */}
           {displaySocials && socialItems.length > 0 && (
             <div style={{ marginTop: 'auto', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
               <h3

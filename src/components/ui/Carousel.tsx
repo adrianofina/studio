@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useRef, useState } from 'react';
-import { motion, useMotionValue, useTransform } from 'motion/react';
+import { motion, useMotionValue } from 'motion/react';
 
 interface CarouselItem {
   title: string;
@@ -29,7 +29,7 @@ const DEFAULT_ITEMS: CarouselItem[] = [
 const DRAG_BUFFER = 0;
 const VELOCITY_THRESHOLD = 500;
 const GAP = 16;
-const SPRING_OPTIONS = { type: 'spring', stiffness: 300, damping: 30 };
+const SPRING_OPTIONS = { type: 'spring', stiffness: 300, damping: 30 } as const;
 
 export default function Carousel({
   items = DEFAULT_ITEMS,

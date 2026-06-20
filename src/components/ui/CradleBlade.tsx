@@ -1,31 +1,46 @@
+﻿import { useState } from 'react';
+
 interface Props {
-  score: number
-  maxScore?: number
+  score: number;
+  minScore?: number;
+  maxScore?: number;
+  showLabels?: boolean;
 }
 
-export function CradleBlade({ score, maxScore = 850 }: Props) {
-  const pct = (score / maxScore) * 100
-  const borderline = pct > 55 && pct < 65
+export function CradleBlade({ score = 50, minScore = 0, maxScore = 100, showLabels = true }: Props) {
+  const [isHovered, setIsHovered] = useState(false);
+  const percentage = ((score - minScore) / (maxScore - minScore)) * 100;
+  
   return (
-    <div className="w-full">
-      <div className="flex justify-between text-[9px] mb-1" style={{ color: "var(--finna-text-dim)" }}>
-        <span>High risk</span>
-        <span>Medium</span>
-        <span>Low risk</span>
-      </div>
-      <div className="relative h-1.5 rounded-full overflow-hidden">
-        <div
-          className="absolute inset-0"
-          style={{ background: "linear-gradient(90deg, var(--finna-crimson), var(--finna-amber), var(--finna-emerald))" }}
+    <div 
+      className="w-full"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {showLabels && (
+        <div className="flex justify-between text-[10px] text-gray-500 mb-1">
+          <span>High Risk</span>
+          <span>Medium Risk</span>
+          <span>Low Risk</span>
+        </div>
+      )}
+      <div className="relative h-2 bg-gray-800 rounded-full overflow-hidden">
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, #EF4444, #F59E0B, #10B981)' }} />
+        <div 
+          className="absolute top-1/2 -translate-y-1/2 w-1 h-4 bg-white rounded-full transition-all duration-400"
+          style={{ 
+            left: `${percentage}%`,
+            boxShadow: isHovered ? '0 0 12px white' : 'none',
+          }}
         />
-        <div
-          className={`absolute top-1/2 -translate-y-1/2 w-[3px] h-3.5 bg-white rounded-sm transition-all duration-400 ${borderline ? "animate-breathing" : ""}`}
-          style={{ left: `${pct}%` }}
-        />
       </div>
-      <div className="text-right text-[11px] font-mono mt-1" style={{ color: "var(--finna-text)" }}>
-        Score: {score}
+      <div className="flex justify-between mt-1">
+        <span className="text-xs font-mono">{minScore}</span>
+        <span className="text-xs font-bold" style={{ color: score >= 70 ? '#10B981' : score >= 30 ? '#F59E0B' : '#EF4444' }}>
+          {score >= 70 ? 'Low Risk' : score >= 30 ? 'Medium Risk' : 'High Risk'}
+        </span>
+        <span className="text-xs font-mono">{maxScore}</span>
       </div>
     </div>
-  )
+  );
 }
