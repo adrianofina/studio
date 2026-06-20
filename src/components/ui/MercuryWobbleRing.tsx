@@ -15,7 +15,6 @@ const STATUS_COLOR: Record<string, string> = {
   overdue: "var(--studio-crimson)",
 };
 
-// Fixed: Swapped to named export to resolve compiler error TS2614
 export function MercuryWobbleRing({
   progress,
   size = 96,
@@ -30,7 +29,17 @@ export function MercuryWobbleRing({
   const clampedProgress = Math.min(100, Math.max(0, progress));
   const strokeDashoffset = circumference - (clampedProgress / 100) * circumference;
   
-  const activeColor = overrideColor || STATUS_COLOR[status] || STATUS_COLOR.active;
+  // Format override colors gracefully to protect SVG strokes from raw invalid values
+  let activeColor = STATUS_COLOR[status] || STATUS_COLOR.active;
+  if (overrideColor && overrideColor.trim() !== "") {
+    if (overrideColor.startsWith("#") || overrideColor.startsWith("rgb") || overrideColor.startsWith("hsl")) {
+      activeColor = overrideColor;
+    } else if (overrideColor.startsWith("var(")) {
+      activeColor = overrideColor;
+    } else {
+      activeColor = `var(--studio-${overrideColor})`;
+    }
+  }
 
   return (
     <div 

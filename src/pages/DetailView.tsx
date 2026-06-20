@@ -13,13 +13,6 @@ interface Props {
   onUpdateUsedIn: (id: string, value: string) => void
 }
 
-// Layout:
-// - Full width, split into two columns on desktop: left=preview, right=details
-// - Preview column: takes as much vertical space as possible, never clips
-// - Right column: scrollable independently -- name, desc, customize panel, code
-// - Code block: always shows, always regenerates on every control change
-// - Customize panel: every control from the spec's controls[] array, scrollable
-
 export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedIn }: Props) {
   const controls = comp.controls ?? []
   const [values, setValues] = useState<Record<string, unknown>>(
@@ -35,7 +28,6 @@ export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedI
 
   const set = (key: string, val: unknown) => setValues(prev => ({ ...prev, [key]: val }))
 
-  // Generated code: always recalculates when values change
   const generatedCode = useMemo(() => {
     const propsStr = controls.map(c => {
       const v = values[c.key]
@@ -46,11 +38,8 @@ export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedI
     }).filter(Boolean).join("\n  ")
 
     const componentName = comp.name.replace(/[^a-zA-Z0-9]/g, "")
-    if (comp.preview === "shadow") {
-      return `<div className="your-card">\n  {/* your card content */}\n</div>\n<${componentName}\n  ${propsStr}\n/>`
-    }
     return `<${componentName}\n  ${propsStr}\n/>`
-  }, [values, controls, comp.name, comp.preview])
+  }, [values, controls, comp.name])
 
   const copyCode = () => {
     const fullCode = comp.code
@@ -75,11 +64,22 @@ export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedI
 
   return (
     <div className="flex-1 flex overflow-hidden" style={{ minHeight: 0 }}>
-      {/* LEFT: Live preview -- gets the most space */}
+
+      {/* ─── LEFT: PREVIEW + CONTROLS ─── */}
       <div
-        className="flex flex-col flex-1 min-w-0"
+        className="flex flex-col flex-1 min-w-0 bg-zinc-950"
         style={{ borderRight: "1px solid rgba(255,255,255,0.05)" }}
       >
+        {/* Hide dock with style override */}
+        <style>{`
+          .fixed.bottom-4, 
+          [class*="fixed bottom-"], 
+          [className*="fixed bottom-"] {
+            display: none !important;
+          }
+        `}</style>
+
+        {/* Back button row */}
         <div className="flex items-center gap-2 px-4 py-3 flex-shrink-0">
           <button
             onClick={onClose}
@@ -94,21 +94,21 @@ export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedI
           </span>
         </div>
 
-        {/* Preview area -- fills remaining vertical space */}
+        {/* ─── PREVIEW AREA ─── */}
         <div
-          className="flex-1 flex items-center justify-center p-8 overflow-auto"
+          className="flex-1 w-full flex items-center justify-center overflow-auto p-8"
           style={{ background: "var(--studio-canvas)" }}
         >
           <ComponentPreview comp={comp} size="large" values={values} />
         </div>
 
-        {/* Customize controls -- below the preview, still in left column */}
+        {/* ─── CUSTOMIZE CONTROLS ─── */}
         <div
-          className="flex-shrink-0 overflow-y-auto"
+          className="w-full overflow-y-auto flex-shrink-0 border-t border-white/5"
           style={{
-            maxHeight: "35vh",
-            borderTop: "1px solid rgba(255,255,255,0.05)",
-            padding: "14px 20px",
+            height: "32vh",
+            padding: "16px 20px",
+            background: "var(--studio-canvas-alt)",
           }}
         >
           <div className="text-[9px] uppercase tracking-[0.14em] font-mono mb-3" style={{ color: "var(--studio-text-dim)" }}>
@@ -137,19 +137,17 @@ export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedI
                       {String(values[ctrl.key])}
                     </span>
                   )}
-                  {ctrl.type === "select" && (
-                    <span className="text-[10px] font-mono" style={{ color: "var(--studio-text-dim)" }}>
-                      {String(values[ctrl.key])}
-                    </span>
-                  )}
                 </div>
 
                 {ctrl.type === "number" && (
                   <input
-                    type="range" min={ctrl.min ?? 0} max={ctrl.max ?? 100}
+                    type="range"
+                    min={ctrl.min ?? 0}
+                    max={ctrl.max ?? 100}
                     step={ctrl.max && ctrl.max <= 2 ? 0.1 : 1}
                     value={values[ctrl.key] as number}
                     onChange={e => set(ctrl.key, Number(e.target.value))}
+                    className="w-full"
                     style={{ accentColor: "var(--studio-primary)" }}
                   />
                 )}
@@ -159,7 +157,11 @@ export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedI
                     value={values[ctrl.key] as string}
                     onChange={e => set(ctrl.key, e.target.value)}
                     className="w-full text-[11px] px-2 py-1.5 rounded-lg outline-none"
-                    style={{ background: "var(--studio-canvas)", border: "1px solid rgba(255,255,255,0.07)", color: "var(--studio-text)" }}
+                    style={{
+                      background: "var(--studio-canvas)",
+                      border: "1px solid rgba(255,255,255,0.07)",
+                      color: "var(--studio-text)",
+                    }}
                   >
                     {ctrl.options?.map(o => <option key={o} value={o}>{o}</option>)}
                   </select>
@@ -171,13 +173,24 @@ export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedI
                     value={values[ctrl.key] as string}
                     onChange={e => set(ctrl.key, e.target.value)}
                     className="w-full text-[11px] px-2 py-1.5 rounded-lg outline-none"
-                    style={{ background: "var(--studio-canvas)", border: "1px solid rgba(255,255,255,0.07)", color: "var(--studio-text)" }}
+                    style={{
+                      background: "var(--studio-canvas)",
+                      border: "1px solid rgba(255,255,255,0.07)",
+                      color: "var(--studio-text)",
+                    }}
                   />
                 )}
 
                 {ctrl.type === "color" && (
                   <div className="flex gap-1.5 flex-wrap mt-1">
-                    {["var(--studio-primary)","var(--studio-violet)","var(--studio-cyan)","var(--studio-amber)","var(--studio-emerald)","var(--studio-crimson)"].map(c => (
+                    {[
+                      "var(--studio-primary)",
+                      "var(--studio-violet)",
+                      "var(--studio-cyan)",
+                      "var(--studio-amber)",
+                      "var(--studio-emerald)",
+                      "var(--studio-crimson)",
+                    ].map(c => (
                       <button
                         key={c}
                         onClick={() => set(ctrl.key, c)}
@@ -197,8 +210,12 @@ export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedI
                     onClick={() => set(ctrl.key, !values[ctrl.key])}
                     className="text-[11px] px-3 py-1 rounded-lg"
                     style={{
-                      background: values[ctrl.key] ? "rgba(131,42,93,0.2)" : "var(--studio-canvas)",
-                      color: values[ctrl.key] ? "var(--studio-primary)" : "var(--studio-text-dim)",
+                      background: values[ctrl.key]
+                        ? "rgba(131,42,93,0.2)"
+                        : "var(--studio-canvas)",
+                      color: values[ctrl.key]
+                        ? "var(--studio-primary)"
+                        : "var(--studio-text-dim)",
                       border: "1px solid rgba(255,255,255,0.07)",
                     }}
                   >
@@ -207,7 +224,10 @@ export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedI
                 )}
 
                 {ctrl.type === "image" && (
-                  <ImagePicker value={values[ctrl.key] as string} onChange={v => set(ctrl.key, v)} />
+                  <ImagePicker
+                    value={values[ctrl.key] as string}
+                    onChange={v => set(ctrl.key, v)}
+                  />
                 )}
               </div>
             ))}
@@ -215,10 +235,14 @@ export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedI
         </div>
       </div>
 
-      {/* RIGHT: Component info + code + variants */}
+      {/* ─── RIGHT: DETAILS PANEL ─── */}
       <div
         className="overflow-y-auto flex-shrink-0"
-        style={{ width: 280, background: "var(--studio-canvas-alt)", padding: "16px 18px" }}
+        style={{
+          width: 280,
+          background: "var(--studio-canvas-alt)",
+          padding: "16px 18px",
+        }}
       >
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
@@ -236,7 +260,7 @@ export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedI
               color: starred ? "#F59E0B" : "var(--studio-text-dim)",
             }}
           >
-            {starred ? "? Saved" : "? Save"}
+            {starred ? "★ Saved" : "☆ Save"}
           </button>
         </div>
 
@@ -247,9 +271,13 @@ export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedI
         {/* Used in */}
         <div className="mb-4">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-[9px] uppercase tracking-wider font-mono" style={{ color: "var(--studio-text-dim)" }}>Used in</span>
+            <span className="text-[9px] uppercase tracking-wider font-mono" style={{ color: "var(--studio-text-dim)" }}>
+              Used in
+            </span>
             {!editingUsedIn && (
-              <button onClick={() => setEditingUsedIn(true)} className="text-[9px]" style={{ color: "var(--studio-primary)" }}>Edit</button>
+              <button onClick={() => setEditingUsedIn(true)} className="text-[9px]" style={{ color: "var(--studio-primary)" }}>
+                Edit
+              </button>
             )}
           </div>
           {editingUsedIn ? (
@@ -258,22 +286,38 @@ export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedI
                 value={usedInDraft}
                 onChange={e => setUsedInDraft(e.target.value)}
                 className="flex-1 text-[11px] px-2 py-1 rounded outline-none"
-                style={{ background: "var(--studio-surface)", border: "1px solid rgba(255,255,255,0.07)", color: "var(--studio-text)" }}
+                style={{
+                  background: "var(--studio-surface)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  color: "var(--studio-text)",
+                }}
               />
-              <button onClick={saveUsedIn} className="text-[10px] px-2 rounded" style={{ background: "var(--studio-primary)", color: "#fff" }}>Save</button>
+              <button
+                onClick={saveUsedIn}
+                className="text-[10px] px-2 rounded"
+                style={{ background: "var(--studio-primary)", color: "#fff" }}
+              >
+                Save
+              </button>
             </div>
           ) : (
-            <p className="text-[11px]" style={{ color: "var(--studio-text-secondary)" }}>{comp.usedIn}</p>
+            <p className="text-[11px]" style={{ color: "var(--studio-text-secondary)" }}>
+              {comp.usedIn}
+            </p>
           )}
         </div>
 
         {/* Motion specs */}
         {comp.motion && Object.keys(comp.motion).length > 0 && (
           <div className="mb-4">
-            <div className="text-[9px] uppercase tracking-wider font-mono mb-2" style={{ color: "var(--studio-text-dim)" }}>Motion</div>
+            <div className="text-[9px] uppercase tracking-wider font-mono mb-2" style={{ color: "var(--studio-text-dim)" }}>
+              Motion
+            </div>
             {Object.entries(comp.motion).map(([k, v]) => (
               <div key={k} className="grid text-[11px] mb-1" style={{ gridTemplateColumns: "80px 1fr" }}>
-                <span className="font-mono text-[10px]" style={{ color: "var(--studio-text-dim)" }}>{k}</span>
+                <span className="font-mono text-[10px]" style={{ color: "var(--studio-text-dim)" }}>
+                  {k}
+                </span>
                 <span style={{ color: "var(--studio-text-secondary)" }}>{v}</span>
               </div>
             ))}
@@ -283,14 +327,20 @@ export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedI
         {/* Saved variants */}
         {savedVariants.length > 0 && (
           <div className="mb-4">
-            <div className="text-[9px] uppercase tracking-wider font-mono mb-2" style={{ color: "var(--studio-text-dim)" }}>Your variants</div>
+            <div className="text-[9px] uppercase tracking-wider font-mono mb-2" style={{ color: "var(--studio-text-dim)" }}>
+              Your variants
+            </div>
             <div className="flex flex-wrap gap-1.5">
               {savedVariants.map(v => (
                 <button
                   key={v.id}
                   onClick={() => setValues(v.values)}
                   className="text-[10px] px-2.5 py-1 rounded-md"
-                  style={{ background: "rgba(131,42,93,0.12)", color: "var(--studio-primary)", border: "1px solid rgba(131,42,93,0.25)" }}
+                  style={{
+                    background: "rgba(131,42,93,0.12)",
+                    color: "var(--studio-primary)",
+                    border: "1px solid rgba(131,42,93,0.25)",
+                  }}
                 >
                   {v.name}
                 </button>
@@ -299,7 +349,7 @@ export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedI
           </div>
         )}
 
-        {/* Live compiled source -- always shows, always updates */}
+        {/* Live compiled source */}
         <div className="mb-3">
           <div className="text-[9px] uppercase tracking-wider font-mono mb-2" style={{ color: "var(--studio-text-dim)" }}>
             Live compiled source
@@ -314,7 +364,9 @@ export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedI
           >
             <pre className="text-[10px] font-mono whitespace-pre-wrap" style={{ color: "#a8c0ff" }}>
               {generatedCode}
-              <span className="animate-pulse" style={{ color: "var(--studio-primary)" }}>�</span>
+              <span className="animate-pulse" style={{ color: "var(--studio-primary)" }}>
+                ▊
+              </span>
             </pre>
           </div>
         </div>
@@ -347,9 +399,19 @@ export function DetailView({ comp, starred, onToggleStar, onClose, onUpdateUsedI
                 onKeyDown={e => e.key === "Enter" && handleSaveVariant()}
                 placeholder="Variant name..."
                 className="flex-1 text-[11px] px-2 py-1.5 rounded-lg outline-none"
-                style={{ background: "var(--studio-surface)", border: "1px solid rgba(255,255,255,0.07)", color: "var(--studio-text)" }}
+                style={{
+                  background: "var(--studio-surface)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  color: "var(--studio-text)",
+                }}
               />
-              <button onClick={handleSaveVariant} className="text-[10px] px-2 rounded-lg" style={{ background: "var(--studio-primary)", color: "#fff" }}>OK</button>
+              <button
+                onClick={handleSaveVariant}
+                className="text-[10px] px-2 rounded-lg"
+                style={{ background: "var(--studio-primary)", color: "#fff" }}
+              >
+                OK
+              </button>
             </div>
           )}
         </div>
