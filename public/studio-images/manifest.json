@@ -1,0 +1,7 @@
+{
+  "_instructions": "Add image filenames to this array whenever you drop a new image into public/studio-images/. The image picker in the Studio Customize panel reads this file to show thumbnails. Supported formats: jpg, jpeg, png, webp, gif.",
+  "images": [
+    { "filename": "placeholder-1.svg", "label": "Placeholder 1" },
+    { "filename": "placeholder-2.svg", "label": "Placeholder 2" }
+  ]
+}
