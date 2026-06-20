@@ -4,7 +4,7 @@ export const ringSpec: ComponentSpec = {
   name: "Mercury Wobble Ring",
   type: "Circular Progress",
   tags: ["motion", "progress", "rings"],
-  starred: true,
+  starred: false,
   desc: "SVG ring with a spring wobble on hover -- 2.5 oscillation cycles with decaying amplitude, like liquid mercury settling. Color changes by status.",
   usedIn: "CIMS (loan repayment), Finna (component previews)",
   motion: { Wobble: "480ms spring, 2.5 cycles, decaying amplitude", Overdue: "breathing 2400ms loop" },
@@ -22,3 +22,4 @@ export const ringSpec: ComponentSpec = {
   code: "",
   preview: "ring",
 }
+
