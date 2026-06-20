@@ -1,55 +1,69 @@
-import { useState } from "react"
+import { useState, type ReactElement } from "react"
 
 interface Props {
-  progress: number
-  size?: number
-  strokeWidth?: number
-  status?: "active" | "overdue" | "completed" | "pending"
+  progress: number;
+  size?: number;
+  strokeWidth?: number;
+  status?: "active" | "overdue" | "completed" | "pending";
+  overrideColor?: string;
 }
 
 const STATUS_COLOR: Record<string, string> = {
-  active: "var(--finna-indigo)",
-  completed: "var(--finna-emerald)",
-  pending: "var(--finna-amber)",
-  overdue: "var(--finna-crimson)",
-}
+  active: "var(--studio-indigo)",
+  completed: "var(--studio-emerald)",
+  pending: "var(--studio-amber)",
+  overdue: "var(--studio-crimson)",
+};
 
-// Mercury wobble: on hover, the ring oscillates like liquid settling --
-// 2.5 cycles, decaying amplitude, NOT a single clean rotation. Built
-// with a CSS animation driven by custom properties so the wobble can
-// restart cleanly every time hover begins.
-
-export function MercuryWobbleRing({ progress, size = 64, strokeWidth, status = "active" }: Props) {
-  const [wobbleKey, setWobbleKey] = useState(0)
-  const sw = strokeWidth ?? Math.max(4, size * 0.08)
-  const r = (size - sw) / 2
-  const circumference = 2 * Math.PI * r
-  const color = STATUS_COLOR[status]
-  const breathing = status === "overdue" ? "animate-breathing" : ""
+// Fixed: Swapped to named export to resolve compiler error TS2614
+export function MercuryWobbleRing({
+  progress,
+  size = 96,
+  strokeWidth = 8,
+  status = "active",
+  overrideColor
+}: Props): ReactElement {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const clampedProgress = Math.min(100, Math.max(0, progress));
+  const strokeDashoffset = circumference - (clampedProgress / 100) * circumference;
+  
+  const activeColor = overrideColor || STATUS_COLOR[status] || STATUS_COLOR.active;
 
   return (
-    <div
-      className="inline-block"
-      onMouseEnter={() => setWobbleKey(k => k + 1)}
+    <div 
+      className="relative flex items-center justify-center select-none"
       style={{ width: size, height: size }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <svg
-        key={wobbleKey}
-        width={size} height={size} viewBox={`0 0 ${size} ${size}`}
-        className={`cursor-pointer finna-wobble ${breathing}`}
-        style={{ display: "block", transformOrigin: "50% 50%" }}
-      >
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--finna-surface)" strokeWidth={sw} />
+      <svg className={`transform -rotate-90 w-full h-full ${isHovered ? 'animate-studio-wobble' : ''}`}>
         <circle
-          cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={sw}
-          strokeDasharray={`${circumference * (progress / 100)} ${circumference}`}
-          strokeLinecap="round" transform={`rotate(-90 ${size / 2} ${size / 2})`}
-          style={{ filter: `drop-shadow(0 0 0px ${color})` }}
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          className="stroke-neutral-800"
+          strokeWidth={strokeWidth}
+          fill="transparent"
         />
-        <text x={size / 2} y={size / 2 + size * 0.06} textAnchor="middle" fill="var(--finna-text)" fontSize={size * 0.2} fontFamily="monospace" fontWeight="700">
-          {Math.round(progress)}%
-        </text>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={activeColor}
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          className="transition-all duration-500 ease-out"
+        />
       </svg>
+      <div className="absolute text-sm font-semibold text-neutral-200">
+        {clampedProgress}%
+      </div>
     </div>
-  )
+  );
 }

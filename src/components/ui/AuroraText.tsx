@@ -1,27 +1,21 @@
-import type { ReactNode } from "react"
+import type { ReactNode, ReactElement } from "react"
 
 interface Props {
-  children: ReactNode
-  className?: string
+  children: ReactNode;
+  className?: string;
 }
 
-// Animated gradient text sweep -- inspired by React Bits' gradient/
-// aurora text treatments. Pure CSS, no canvas, cheap to render.
-// Good for page titles and the Finna wordmark.
-
-export function AuroraText({ children, className = "" }: Props) {
+export function AuroraText({ children, className = "" }: Props): ReactElement {
   return (
-    <span
-      className={`finna-aurora-text font-bold ${className}`}
+    <span 
+      className={`font-bold tracking-tight bg-clip-text text-transparent animate-studio-aurora ${className}`}
       style={{
-        backgroundImage: "linear-gradient(90deg, var(--finna-primary), var(--finna-violet), var(--finna-cyan), var(--finna-primary))",
+        backgroundImage: "linear-gradient(90deg, var(--studio-primary), var(--studio-violet), var(--studio-cyan), var(--studio-primary))",
         backgroundSize: "300% 100%",
         WebkitBackgroundClip: "text",
-        backgroundClip: "text",
-        color: "transparent",
       }}
     >
       {children}
     </span>
-  )
+  );
 }
