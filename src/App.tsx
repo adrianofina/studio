@@ -11,7 +11,10 @@ import { AuroraText } from "./components/ui/AuroraText"
 import { COMPONENTS } from "./data/library"
 import type { ComponentSpec } from "./types"
 
-type View = "archive" | "diary" | "detail"
+import TestPage from "./pages/TestPage"
+
+//type View = "archive" | "diary" | "detail"
+type View = "archive" | "diary" | "detail" | "test"
 
 const STARS_KEY = "studio-stars"
 
@@ -25,7 +28,9 @@ function loadStars(): Set<string> {
 }
 
 export default function App() {
-  const [view, setView] = useState<View>("archive")
+  //const [view, setView] = useState<View>("archive")
+  
+  const [view, setView] = useState<View>("test")
   const [activeTag, setActiveTag] = useState("all")
   const [selected, setSelected] = useState<ComponentSpec | null>(null)
   const [colorLabOpen, setColorLabOpen] = useState(false)
@@ -105,7 +110,8 @@ export default function App() {
               />
             )}
             {view === "diary" && <DiaryPage />}
-            {view === "detail" && selected && (
+           {/* {view === "detail" && selected && ( */}
+           {view === "test" ? <TestPage /> : view === "detail" && selected && (
               <DetailView
                 comp={selected}
                 starred={stars.has(selected.id)}
