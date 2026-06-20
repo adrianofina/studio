@@ -2,6 +2,9 @@ import type { ComponentSpec } from "../../types"
 
 export const shadowSpec: ComponentSpec = {
   id: "sungjinwoo-shadow",
+  tags: [],
+  starred: false,
+  preview: "",
   name: "SungJinwoo Shadow",
   type: "INDICATOR",
   desc: "An elegant single-surface system featuring an integrated edge status line accent.",
@@ -24,3 +27,5 @@ export const shadowSpec: ComponentSpec = {
   <div>Your Core Metric Content Here</div>
 </SungJinwooShadow>`
 }
+
+

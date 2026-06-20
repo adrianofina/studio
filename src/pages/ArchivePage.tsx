@@ -26,10 +26,10 @@ export function ArchivePage({ activeTag, stars, onToggleStar, onOpen }: Props) {
 
   const filtered = useMemo(() => {
     let items = COMPONENTS
-    if (activeTag !== "all") items = items.filter(c => c.tags.includes(activeTag))
+    if (activeTag !== "all") items = items.filter((c: any) => c.tags.includes(activeTag))
     if (query) {
       const q = query.toLowerCase()
-      items = items.filter(c => c.name.toLowerCase().includes(q) || c.type.toLowerCase().includes(q))
+      items = items.filter((c: any) => c.name.toLowerCase().includes(q) || c.type.toLowerCase().includes(q))
     }
     return items
   }, [activeTag, query])
@@ -76,7 +76,7 @@ export function ArchivePage({ activeTag, stars, onToggleStar, onOpen }: Props) {
 
         {viewMode === "bento" && (
           <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
-            {filtered.map((comp, idx) => (
+            {filtered.map((comp: any, idx: number) => (
               <MagicBento
                 key={comp.id}
                 comp={comp}
@@ -96,3 +96,4 @@ export function ArchivePage({ activeTag, stars, onToggleStar, onOpen }: Props) {
     </div>
   )
 }
+
