@@ -2,7 +2,6 @@
 import GlassSurface from '../components/ui/GlassSurface';
 import SpotlightCard from '../components/ui/SpotlightCard';
 import BorderGlow from '../components/ui/BorderGlow';
-import InfiniteMenu from '../components/ui/InfiniteMenu';
 import Stepper, { Step } from '../components/ui/Stepper';
 import ScrollStack, { ScrollStackItem } from '../components/ui/ScrollStack';
 import { SungJinwooShadow } from '../components/ui/SungJinwooShadow';
@@ -12,14 +11,6 @@ import { LordOfTheRings } from '../components/ui/LordOfTheRings';
 import { SparklineBars } from '../components/ui/SparklineBars';
 import { StatusSpine } from '../components/ui/StatusSpine';
 import { TheStack } from '../components/ui/TheStack';
-
-const infiniteItems = [
-  { image: 'https://picsum.photos/300/300?grayscale', link: '#', title: 'Item 1', description: 'Pretty cool' },
-  { image: 'https://picsum.photos/400/400?grayscale', link: '#', title: 'Item 2', description: 'Pretty cool' },
-  { image: 'https://picsum.photos/500/500?grayscale', link: '#', title: 'Item 3', description: 'Pretty cool' },
-  { image: 'https://picsum.photos/600/600?grayscale', link: '#', title: 'Item 4', description: 'Pretty cool' },
-  { image: 'https://picsum.photos/700/700?grayscale', link: '#', title: 'Item 5', description: 'Pretty cool' },
-];
 
 export default function TestPage() {
   return (
@@ -51,13 +42,6 @@ export default function TestPage() {
             <BorderGlow edgeSensitivity={30} glowColor="40 80 80" glowIntensity={1.2}>
               <div className="text-center text-white p-6"><p className="text-xl font-bold">Border Glow</p><p className="text-sm text-zinc-400">Hover near edges</p></div>
             </BorderGlow>
-          </div>
-
-          <div>
-            <h3 className="text-xs font-mono text-zinc-500 mb-3">InfiniteMenu</h3>
-            <div className="h-64 bg-zinc-900/30 rounded-xl border border-white/5 overflow-hidden">
-              <InfiniteMenu items={infiniteItems} scale={0.8} />
-            </div>
           </div>
 
           <div>
