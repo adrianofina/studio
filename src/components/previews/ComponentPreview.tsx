@@ -1,4 +1,4 @@
-import type { ComponentSpec } from "../../types"
+﻿import type { ComponentSpec } from "../../types"
 import { SungJinwooShadow } from "../ui/SungJinwooShadow"
 import { MercuryWobbleRing } from "../ui/MercuryWobbleRing"
 import { CradleBlade } from "../ui/CradleBlade"
@@ -15,6 +15,17 @@ import { AnimatedList } from "../ui/AnimatedList"
 import { MagicBento } from "../ui/MagicBento"
 import { COMPONENTS } from "../../data/library"
 
+// New imports
+import Dock from "../ui/Dock"
+import Carousel from "../ui/Carousel"
+import { ScrollStack, ScrollStackItem } from "../ui/ScrollStack"
+import StaggeredMenu from "../ui/StaggeredMenu"
+import Stepper, { Step } from "../ui/Stepper"
+import SpotlightCard from "../ui/SpotlightCard"
+import BorderGlow from "../ui/BorderGlow"
+import GlassSurface from "../ui/GlassSurface"
+import { Home, Archive, User, Settings } from "lucide-react"
+
 interface Props {
   comp: ComponentSpec
   size?: "compact" | "small" | "large"
@@ -23,17 +34,12 @@ interface Props {
 
 const RING_SIZE = { compact: 36, small: 56, large: 96 }
 
-// HYBRID APPROACH:
-// Small, self-contained components (ring, shadow, text, spine, sparkline,
-// breathing, glass, cradle) render live -- they fit naturally in a card.
-// Large layout components (stack, cardflip, animated-list, magic-bento)
-// render a CRAFTED THUMBNAIL that communicates what they do without
-// trying to cram a horizontal scroll list into a 100px card.
-// When size="large" (detail view), ALL components render full-size and live.
-
 export function ComponentPreview({ comp, size = "small", values = {} }: Props) {
-  // Full-size live render for the detail view
-  if (size === "large") {
+  const isLarge = size === "large"
+  const isCompact = size === "compact"
+
+  // ── Full-size live render for the detail view ──
+  if (isLarge) {
     switch (comp.preview) {
       case "shadow":
         return (
@@ -81,17 +87,124 @@ export function ComponentPreview({ comp, size = "small", values = {} }: Props) {
         )
       case "cradle":
         return <div style={{ width: 280 }}><CradleBlade score={(values.score as number) ?? 520} /></div>
+
+      // ── NEW LARGE PREVIEWS ──
+      case "dock": {
+        const dockItems = [
+          { icon: <Home size={18} />, label: "Home", onClick: () => {} },
+          { icon: <Archive size={18} />, label: "Archive", onClick: () => {} },
+          { icon: <User size={18} />, label: "Profile", onClick: () => {} },
+          { icon: <Settings size={18} />, label: "Settings", onClick: () => {} },
+        ]
+        return (
+          <div className="relative w-full h-24">
+            <Dock
+              items={dockItems}
+              magnification={(values.magnification as number) ?? 70}
+              panelHeight={(values.panelHeight as number) ?? 68}
+              baseItemSize={(values.baseItemSize as number) ?? 50}
+            />
+          </div>
+        )
+      }
+
+      case "carousel":
+        return (
+          <div className="w-full max-w-md">
+            <Carousel
+              baseWidth={(values.baseWidth as number) ?? 320}
+              autoplay={(values.autoplay as boolean) ?? true}
+              loop={(values.loop as boolean) ?? false}
+            />
+          </div>
+        )
+
+      case "scroll-stack":
+        return (
+          <div className="w-full max-w-md h-96">
+            <ScrollStack
+              itemDistance={(values.itemDistance as number) ?? 80}
+              itemScale={(values.itemScale as number) ?? 0.03}
+              blurAmount={(values.blurAmount as number) ?? 2}
+            >
+              <ScrollStackItem><div className="text-white p-4">Card 1</div></ScrollStackItem>
+              <ScrollStackItem><div className="text-white p-4">Card 2</div></ScrollStackItem>
+              <ScrollStackItem><div className="text-white p-4">Card 3</div></ScrollStackItem>
+            </ScrollStack>
+          </div>
+        )
+
+      case "staggered-menu": {
+        const menuItems = [{ label: "Home", link: "/" }, { label: "Archive", link: "/archive" }]
+        const pos = (values.position as string) === "left" ? "left" : "right"
+        return (
+          <div className="relative w-full h-40">
+            <StaggeredMenu
+              items={menuItems}
+              position={pos}
+              displayItemNumbering={(values.displayItemNumbering as boolean) ?? true}
+              displaySocials={(values.displaySocials as boolean) ?? true}
+            />
+          </div>
+        )
+      }
+
+      case "stepper":
+        return (
+          <div className="w-full max-w-md">
+            <Stepper
+              initialStep={(values.initialStep as number) ?? 1}
+              backButtonText="Back"
+              nextButtonText="Next"
+            >
+              <Step><div className="text-white p-4">Step 1</div></Step>
+              <Step><div className="text-white p-4">Step 2</div></Step>
+              <Step><div className="text-white p-4">Step 3</div></Step>
+            </Stepper>
+          </div>
+        )
+
+      case "spotlight-card":
+        return (
+          <SpotlightCard spotlightColor={(values.spotlightColor as string) ?? "rgba(176,0,255,0.15)"}>
+            <div className="text-white p-6">Spotlight Card</div>
+          </SpotlightCard>
+        )
+
+      case "border-glow":
+        return (
+          <BorderGlow
+            edgeSensitivity={(values.edgeSensitivity as number) ?? 30}
+            glowIntensity={(values.glowIntensity as number) ?? 1.0}
+            coneSpread={(values.coneSpread as number) ?? 25}
+          >
+            <div className="text-white p-6">Border Glow</div>
+          </BorderGlow>
+        )
+
+      case "glass-surface":
+        return (
+          <GlassSurface
+            width={320}
+            height={160}
+            borderRadius={(values.borderRadius as number) ?? 24}
+            tearDrop={(values.tearDrop as number) ?? 0.5}
+          >
+            <div className="text-white p-4">Glass Surface</div>
+          </GlassSurface>
+        )
+
       default:
         return <span style={{ fontSize: 10, fontFamily: "monospace", color: "var(--finna-text-dim)" }}>[{comp.type}]</span>
     }
   }
 
-  // Small / compact previews for the archive grid
+  // ── Small / compact previews for the archive grid ──
   switch (comp.preview) {
     case "shadow":
       return (
-        <SungJinwooShadow status="active" intensity={size === "compact" ? 0.5 : 0.8}>
-          <div className="rounded-lg flex items-center justify-center" style={{ width: size === "compact" ? 48 : 70, height: size === "compact" ? 30 : 44, background: "var(--finna-surface)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <SungJinwooShadow status="active" intensity={isCompact ? 0.5 : 0.8}>
+          <div className="rounded-lg flex items-center justify-center" style={{ width: isCompact ? 48 : 70, height: isCompact ? 30 : 44, background: "var(--finna-surface)", border: "1px solid rgba(255,255,255,0.06)" }}>
             <span style={{ fontSize: 8, fontFamily: "monospace", color: "var(--finna-text-dim)" }}>card</span>
           </div>
         </SungJinwooShadow>
@@ -107,7 +220,7 @@ export function ComponentPreview({ comp, size = "small", values = {} }: Props) {
       return <AuroraText className="text-sm">Aurora</AuroraText>
 
     case "spine":
-      return <div style={{ height: size === "compact" ? 32 : 56 }}><StatusSpine status="active" /></div>
+      return <div style={{ height: isCompact ? 32 : 56 }}><StatusSpine status="active" /></div>
 
     case "sparkline":
       return <SparklineBars data={[20, 45, 30, 60, 40, 80, 65]} />
@@ -115,7 +228,7 @@ export function ComponentPreview({ comp, size = "small", values = {} }: Props) {
     case "breathing":
       return (
         <BreathingElement>
-          <div style={{ width: size === "compact" ? 24 : 36, height: size === "compact" ? 24 : 36, borderRadius: 8, background: "rgba(131,42,93,0.2)", border: "1px solid var(--finna-primary)" }} />
+          <div style={{ width: isCompact ? 24 : 36, height: isCompact ? 24 : 36, borderRadius: 8, background: "rgba(131,42,93,0.2)", border: "1px solid var(--finna-primary)" }} />
         </BreathingElement>
       )
 
@@ -125,7 +238,7 @@ export function ComponentPreview({ comp, size = "small", values = {} }: Props) {
     case "lotr":
       return (
         <LordOfTheRings
-          size={size === "compact" ? 44 : 68}
+          size={isCompact ? 44 : 68}
           segments={[
             { label: "A", value: 70, color: "var(--finna-indigo)", pct: 70 },
             { label: "B", value: 30, color: "var(--finna-emerald)", pct: 30 },
@@ -141,66 +254,134 @@ export function ComponentPreview({ comp, size = "small", values = {} }: Props) {
         </GlassCard>
       )
 
-    // Layout components -- crafted thumbnails communicating what they do
     case "cardflip":
       return (
-        <div style={{ position: "relative", width: size === "compact" ? 40 : 60, height: size === "compact" ? 56 : 84 }}>
-          {/* Back card slightly offset */}
+        <div style={{ position: "relative", width: isCompact ? 40 : 60, height: isCompact ? 56 : 84 }}>
           <div style={{ position: "absolute", top: 4, left: 4, right: -4, bottom: -4, borderRadius: 8, background: "var(--finna-surface)", border: "1px solid rgba(255,255,255,0.06)" }} />
-          {/* Front card */}
-          <div style={{ position: "absolute", inset: 0, borderRadius: 8, background: "linear-gradient(160deg, var(--finna-canvas-alt), var(--finna-surface))", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "flex-end", padding: 5 }}>
-            <div style={{ fontSize: 7, color: "var(--finna-text-dim)", fontFamily: "monospace" }}>flip</div>
+          <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: 8, background: "var(--finna-primary)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
+            <span style={{ fontSize: isCompact ? 6 : 9, color: "#fff", fontWeight: 700, fontFamily: "monospace" }}>Flip</span>
           </div>
         </div>
       )
 
     case "stack":
       return (
-        <div style={{ display: "flex", alignItems: "flex-end", marginLeft: -4 }}>
-          {[0, 1, 2, 3].map(i => (
-            <div
-              key={i}
-              style={{
-                width: size === "compact" ? 22 : 32,
-                height: size === "compact" ? 32 : 46,
-                borderRadius: 5,
-                background: `linear-gradient(160deg, hsl(${270 + i * 20}, 30%, ${18 + i * 3}%), hsl(${260 + i * 20}, 25%, ${12 + i * 2}%))`,
-                border: "1px solid rgba(255,255,255,0.07)",
-                marginLeft: i === 0 ? 0 : -(size === "compact" ? 8 : 12),
-                zIndex: 4 - i,
-                position: "relative",
-              }}
-            />
+        <div style={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
+          {[1, 2, 3].map((_, i) => (
+            <div key={i} style={{ width: isCompact ? 14 + i * 4 : 20 + i * 6, height: isCompact ? 18 + i * 4 : 28 + i * 6, borderRadius: 4, background: i === 0 ? "var(--finna-primary)" : "var(--finna-surface)", border: "1px solid rgba(255,255,255,0.06)", marginLeft: i > 0 ? -6 : 0, zIndex: 3 - i }} />
           ))}
         </div>
       )
 
     case "animated-list":
       return (
-        <div style={{ display: "flex", flexDirection: "column", gap: 4, width: size === "compact" ? 56 : 80 }}>
-          {[100, 75, 50].map((w, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <div style={{ width: 6, height: 6, borderRadius: 2, background: "var(--finna-primary)", opacity: 1 - i * 0.25, flexShrink: 0 }} />
-              <div style={{ height: 4, borderRadius: 2, background: "var(--finna-surface)", width: `${w}%` }} />
-            </div>
+        <div style={{ width: "100%", height: isCompact ? 40 : 64, overflow: "hidden", display: "flex", flexDirection: "column", gap: 2 }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{ height: isCompact ? 10 : 16, borderRadius: 4, background: i === 1 ? "var(--finna-primary)" : "var(--finna-surface)", opacity: i === 1 ? 1 : 0.4, border: "1px solid rgba(255,255,255,0.06)", width: `${80 - i * 15}%` }} />
           ))}
         </div>
       )
 
     case "magic-bento":
       return (
-        <div style={{
-          width: size === "compact" ? 56 : 80, height: size === "compact" ? 40 : 56,
-          borderRadius: 8, background: "rgba(255,255,255,0.02)",
-          border: "1px solid rgba(176,0,255,0.35)",
-          boxShadow: "0 0 12px rgba(176,0,255,0.15), inset 0 0 12px rgba(176,0,255,0.05)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}>
-          <div style={{ width: "60%", height: "40%", borderRadius: 4, background: "rgba(176,0,255,0.15)" }} />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2, width: "100%", height: "100%" }}>
+          <div style={{ background: "var(--finna-primary)", borderRadius: 4, gridRow: "span 2" }} />
+          <div style={{ background: "var(--finna-surface)", borderRadius: 4, border: "1px solid rgba(255,255,255,0.06)" }} />
+          <div style={{ background: "var(--finna-surface)", borderRadius: 4, border: "1px solid rgba(255,255,255,0.06)" }} />
         </div>
       )
 
+    // ── NEW COMPACT PREVIEWS ──
+    case "dock": {
+      const dockItems = [
+        { icon: <Home size={12} />, label: "Home", onClick: () => {} },
+        { icon: <Archive size={12} />, label: "Archive", onClick: () => {} },
+        { icon: <User size={12} />, label: "Profile", onClick: () => {} },
+        { icon: <Settings size={12} />, label: "Settings", onClick: () => {} },
+      ]
+      return (
+        <div className="relative w-full h-12">
+          <Dock
+            items={dockItems}
+            magnification={isCompact ? 36 : 50}
+            panelHeight={isCompact ? 36 : 48}
+            baseItemSize={isCompact ? 24 : 32}
+          />
+        </div>
+      )
+    }
+
+    case "carousel":
+      return (
+        <div className="w-full">
+          <Carousel
+            baseWidth={isCompact ? 120 : 180}
+            autoplay={false}
+            loop={false}
+          />
+        </div>
+      )
+
+    case "scroll-stack":
+      return (
+        <ScrollStack
+          itemDistance={isCompact ? 20 : 40}
+          itemScale={0.02}
+          blurAmount={1}
+        >
+          <ScrollStackItem><div className="text-white text-[8px] p-2">1</div></ScrollStackItem>
+          <ScrollStackItem><div className="text-white text-[8px] p-2">2</div></ScrollStackItem>
+          <ScrollStackItem><div className="text-white text-[8px] p-2">3</div></ScrollStackItem>
+        </ScrollStack>
+      )
+
+    case "staggered-menu": {
+      const menuItems = [{ label: "Home", link: "/" }, { label: "Archive", link: "/archive" }]
+      return (
+        <div className="relative w-full h-16">
+          <StaggeredMenu
+            items={menuItems}
+            position="right"
+            displayItemNumbering={false}
+            displaySocials={false}
+          />
+        </div>
+      )
+    }
+
+    case "stepper":
+      return (
+        <div className="w-full">
+          <Stepper initialStep={1} backButtonText="" nextButtonText="">
+            <Step><div className="text-white text-[8px] p-1">1</div></Step>
+            <Step><div className="text-white text-[8px] p-1">2</div></Step>
+            <Step><div className="text-white text-[8px] p-1">3</div></Step>
+          </Stepper>
+        </div>
+      )
+
+    case "spotlight-card":
+      return (
+        <SpotlightCard spotlightColor="rgba(176,0,255,0.15)">
+          <div className="text-white text-[8px] p-2 text-center">Spotlight</div>
+        </SpotlightCard>
+      )
+
+    case "border-glow":
+      return (
+        <BorderGlow edgeSensitivity={30} glowIntensity={0.8} coneSpread={25}>
+          <div className="text-white text-[8px] p-2 text-center">Glow</div>
+        </BorderGlow>
+      )
+
+    case "glass-surface":
+      return (
+        <GlassSurface width={isCompact ? 80 : 120} height={isCompact ? 50 : 70} borderRadius={16} tearDrop={0.3}>
+          <div className="text-white text-[8px] p-1 text-center">Glass</div>
+        </GlassSurface>
+      )
+
     default:
-      return <span style={{ fontSize: 9, fontFamily: "monospace", color: "var(--finna-text-dim)" }}>[{comp.type}]</span>
+      return <span style={{ fontSize: 10, fontFamily: "monospace", color: "var(--finna-text-dim)" }}>[{comp.type}]</span>
   }
 }
