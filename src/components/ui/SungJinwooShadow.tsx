@@ -1,4 +1,4 @@
-import { useState, type ReactNode, type ReactElement } from "react"
+﻿import { useState, type ReactNode, type ReactElement } from "react"
 
 export interface SungJinwooShadowProps {
   progress?: number
@@ -6,7 +6,7 @@ export interface SungJinwooShadowProps {
   overrideColor?: string
   thickness?: number
   blur?: number
-  children: ReactNode
+  children?: ReactNode
   className?: string
   intensity?: number
 }
@@ -65,3 +65,4 @@ export function SungJinwooShadow({
     </div>
   )
 }
+
