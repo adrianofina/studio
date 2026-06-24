@@ -1,29 +1,20 @@
-﻿import type { ComponentSpec } from '../../types'
-
+import type { ComponentSpec } from "../../types"
 export const infiniteMenuSpec: ComponentSpec = {
   id: "infinite-menu",
   name: "Infinite Menu",
-  type: "LAYOUT",
-  tags: ["layout", "3d", "interactive"],
+  type: "WebGL Sphere Navigation",
+  tags: ["motion", "aesthetic", "layout"],
   starred: false,
-  desc: "3D rotating sphere of images with click interaction. Items orbit around a central axis.",
-  usedIn: "Studio (experimental)",
-  motion: {
-    "Rotate": "Sphere rotates on drag",
-    "Smooth": "Spring-driven rotation"
-  },
+  desc: "A 3D WebGL sphere populated with images from any source. Drag to rotate. Items snap to the front face. Click the action button to navigate to links. Built with gl-matrix and WebGL 2.",
+  usedIn: "Finna (archive showcase)",
+  motion: { Rotation: "arcball drag with spring physics", Snap: "nearest vertex auto-snaps to front" },
   props: [
-    { key: "scale", type: "number", desc: "Overall scale of the menu" }
+    { key: "items", type: "array", desc: "[{image, link, title, description}]" },
+    { key: "scale", type: "number", desc: "camera zoom, default 1.0" },
   ],
   controls: [
-    { key: "scale", type: "number", label: "Scale", default: 1.0, min: 0.5, max: 1.5 }
+    { key: "scale", type: "number", label: "Camera zoom", default: 1, min: 0.5, max: 2 },
   ],
-  code: `import InfiniteMenu from "./components/ui/InfiniteMenu"
-
-const items = [
-  { image: 'https://picsum.photos/300/300?grayscale', link: '#', title: 'Item 1', description: 'Description' }
-]
-
-<InfiniteMenu items={items} scale={1.0} />`,
-  preview: "infinite-menu"
+  code: "",
+  preview: "infinite-menu",
 }

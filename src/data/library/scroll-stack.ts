@@ -1,32 +1,25 @@
-﻿import type { ComponentSpec } from '../../types'
-
+import type { ComponentSpec } from "../../types"
 export const scrollStackSpec: ComponentSpec = {
   id: "scroll-stack",
   name: "Scroll Stack",
-  type: "LAYOUT",
-  tags: ["layout", "scroll", "stack"],
+  type: "Smooth Scroll Card Stack",
+  tags: ["motion", "layout"],
   starred: false,
-  desc: "Cards that stack on scroll. Each card scales and blurs as it moves through the stack.",
-  usedIn: "Studio (scroll experiences)",
-  motion: {
-    "Stack": "Cards stack on top of each other",
-    "Scale": "Cards scale as they stack",
-    "Blur": "Cards blur with depth"
-  },
+  desc: "Cards stack and scale as you scroll using Lenis smooth scroll. Cards pin, scale, blur, and rotate as they enter the stack zone. Highly configurable physics.",
+  usedIn: "Finna (showcase sections)",
+  motion: { Lenis: "smooth scroll with spring easing", Stack: "cards pin and scale on scroll" },
   props: [
-    { key: "itemDistance", type: "number", desc: "Space between items" },
-    { key: "itemScale", type: "number", desc: "Scale factor for stacked items" }
+    { key: "itemDistance", type: "number", desc: "gap between stacked items in px" },
+    { key: "baseScale", type: "number", desc: "scale of first item in stack" },
+    { key: "blurAmount", type: "number", desc: "blur applied to items further back" },
+    { key: "rotationAmount", type: "number", desc: "rotation of each stacked item" },
   ],
   controls: [
-    { key: "itemDistance", type: "number", label: "Item distance (px)", default: 80, min: 20, max: 200 },
-    { key: "itemScale", type: "number", label: "Scale factor", default: 0.03, min: 0.01, max: 0.1 },
-    { key: "blurAmount", type: "number", label: "Blur (px)", default: 2, min: 0, max: 10 }
+    { key: "itemDistance", type: "number", label: "Item gap (px)", default: 100, min: 40, max: 200 },
+    { key: "baseScale", type: "number", label: "Base scale", default: 0.85, min: 0.5, max: 1 },
+    { key: "blurAmount", type: "number", label: "Blur depth", default: 0, min: 0, max: 4 },
+    { key: "rotationAmount", type: "number", label: "Rotation (deg)", default: 0, min: 0, max: 10 },
   ],
-  code: `import ScrollStack, { ScrollStackItem } from "./components/ui/ScrollStack"
-
-<ScrollStack itemDistance={80} itemScale={0.03}>
-  <ScrollStackItem><div>Card 1</div></ScrollStackItem>
-  <ScrollStackItem><div>Card 2</div></ScrollStackItem>
-</ScrollStack>`,
-  preview: "scroll-stack"
+  code: "",
+  preview: "scroll-stack",
 }
