@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 // InfiniteMenu: WebGL sphere of images from React Bits.
 // TypeScript checking is disabled for this file because the gl-matrix
 // library uses plain arrays as matrix types that conflict with strict TS.
@@ -175,3 +175,4 @@ export default function InfiniteMenu({ items = [], scale = 1.0 }) {
     </div>
   )
 }
+
